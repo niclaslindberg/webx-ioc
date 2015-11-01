@@ -73,24 +73,24 @@ WebX IOC recursivly resolves all dependent interfaces upon object creation. Othe
 
 ```
 ### Resolving non-resolable parameters Ex 2
+Example of creating a settins file to satisfy parameter dependencies
+
+```json
+{
+    "mysqli" : {
+        "user" : "u",
+        "password" : "p",
+        "database" : "127.0.0.1"
+    }
+}
+
+```
+settings.json
 
 ```php
 
     use WebX\Ioc\Ioc;
     use WebX\Ioc\Impl\IocImpl;
-
-    $config = [
-        "user" => "u",
-        "password" => "p",
-        "database" => "test",
-        "host" => "127.0.0.1",
-    ]
-
-    $resolver = function(\ReflectionParameter $param) use ($config) {
-        if($param->getDeclaringClass()->getName()==)'\mysqli') { //Only provide parameters for \mysqli
-            return isset($config[$param->getName()]) ? $config[$param->getName()] : null;
-        }
-    };
 
     class ClassC implements InterfaceC {
         private $mysql;
@@ -100,6 +100,14 @@ WebX IOC recursivly resolves all dependent interfaces upon object creation. Othe
         }
     }
 
+    $config = json_decode(file_get_contents("settings.json"),TRUE);
+
+    $resolver = function(\ReflectionParameter $param) use ($config) {
+        $key = $param->getDeclaringClass()->getName();
+        $subKey = $param->getName();
+        return isset($config[$key][$subKey]) ? $config[$key][$subKey] : null;
+    };
+
     $ioc = new IocImpl($resolver);
     $ioc->register(ClassC::class);
     $a = $ioc->get(InterfaceA::class);
@@ -107,6 +115,7 @@ WebX IOC recursivly resolves all dependent interfaces upon object creation. Othe
     // Instantiated ClassC with the \mysqli instance.
 
 ```
+Construct parameters for the \mysqli client is provided by a JSON settings file.
 
 
 ## How to run tests
