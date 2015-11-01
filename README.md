@@ -2,7 +2,7 @@
 Main features and design goals of webx-ioc:
 * Resolve single and array of instances of an interface.
 * Simple setup and configuration.
-* Easy to integrate with non-resolvable parameters.
+* Easy to extend to resolve non-resolvable parameters.
 * No external dependencies.
 * Easy to integrate with any framework / application.
 * Fast & light weight (Less than 100 lines).
