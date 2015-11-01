@@ -63,13 +63,13 @@ WebX IOC recursively resolves all dependent interfaces upon object creation. Oth
     $iocWithResolver->register(ClassB::class);
     $iocWithResolver->register(ClassA::class);
     $a = $iocWithResolver->get(InterfaceA::class);
-    echo($a->currency())    //Returns ClassA's resolved value "USD"
+    echo($a->currency());   //Returns ClassA's resolved value "USD"
 
     $ioc = new IocImpl();
     $ioc->register(ClassA::class);
     $ioc->register(ClassB::class);
     $a = $ioc->get(InterfaceA::class);
-    echo($a->currency())    //Returns ClassA's default value "EUR"
+    echo($a->currency());    //Returns ClassA's default value "EUR"
 
 ```
 ### Resolving non-resolvable parameters Ex 2
@@ -94,7 +94,6 @@ settings.json
 
     class ClassC implements InterfaceC {
         private $mysql;
-
         public function __construct(\mysqli $mysql) {
             $this->mysql;
         }
@@ -103,7 +102,7 @@ settings.json
     $config = json_decode(file_get_contents("settings.json"),TRUE);
 
     $resolver = function(\ReflectionParameter $param) use ($config) {
-        $key = $param->getDeclaringClass()->getName();
+        $key = $param->getDeclaringClass()->getShortName();
         $subKey = $param->getName();
         return isset($config[$key][$subKey]) ? $config[$key][$subKey] : null;
     };
