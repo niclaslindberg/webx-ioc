@@ -71,14 +71,14 @@ WebX IOC recursively resolves all dependent interfaces upon object creation. Oth
     $iocWithResolver->register(ClassB::class);
     $a = $iocWithResolver->get(InterfaceA::class);
     echo($a->currency());
-    //Returns ClassA's resolved value "USD"
+    //Returns ClassA's resolved value for $currency "USD"
 
     $ioc = new IocImpl();
     $ioc->register(ClassA::class);
     $ioc->register(ClassB::class);
     $a = $ioc->get(InterfaceA::class);
     echo($a->currency());
-    //Returns ClassA's default value "EUR"
+    //Returns ClassA's default value for $currency "EUR"
 
 ```
 ### Resolving non-resolvable parameters Ex 2
