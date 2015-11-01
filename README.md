@@ -18,7 +18,7 @@ Main features and design goals of webx-ioc:
     $ioc->register(ClassA::class); // Implements InterfaceA
 
     $a = $ioc->get(InterfaceA::class);
-    // Gives the implementing class (classA) of InterfaceA
+    // Gives the implementing instance (ClassA) of InterfaceA
 
 
 ```
@@ -33,7 +33,7 @@ Main features and design goals of webx-ioc:
     $ioc->register(ClassAB::class); // Implements both InterfaceA and InterfaceB
 
     $all = $ioc->getAll(InterfaceA::class);
-    // Gives use the implementing classes ([classA,classAB]) of InterfaceA
+    // Gives use the implementing instances ([ClassA,ClassAB]) of InterfaceA
 
 ```
 
