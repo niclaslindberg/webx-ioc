@@ -17,7 +17,7 @@ To get started the IOC container must be initialized and implementations must be
     use WebX\Ioc\Impl\IocImpl;
 
     $ioc = new IocImpl();
-    $ioc->register(ClassA::class); // Implements InterfaceA
+    $ioc->register(ClassA::class); // ClassA implements InterfaceA
 
     $a = $ioc->get(InterfaceA::class);
     // Returns an implementation of InterfaceA (ClassA).
