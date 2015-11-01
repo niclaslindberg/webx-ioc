@@ -46,11 +46,12 @@ WebX IOC recursively resolves all dependent interfaces upon object creation. Oth
     use WebX\Ioc\Impl\IocImpl;
 
     class ClassA implements InterfaceA {
+        private $b;
         private $currency;
 
         public function __construct(InterfaceB $b, $currency="EUR") {
         //$currency is not an interface and will be resolved by the resolver function
-
+            $this->b = $b;
             $this->currency = $currency;
         }
         public function currency() {
