@@ -26,9 +26,6 @@ Main features and design goals of webx-ioc:
 ### Resolving multiple instances
 ```php
 
-    use WebX\Ioc\Ioc;
-    use WebX\Ioc\Impl\IocImpl;
-
     $ioc = new IocImpl();
     $ioc->register(ClassA::class); // Implements InterfaceA
     $ioc->register(ClassAB::class); // Implements InterfaceA and InterfaceB
@@ -42,9 +39,6 @@ Main features and design goals of webx-ioc:
 WebX IOC recursively resolves all registered dependent interfaces upon object creation. Other dependencies must be resolved externally.
 #### Example 1
 ```php
-
-    use WebX\Ioc\Ioc;
-    use WebX\Ioc\Impl\IocImpl;
 
     class ClassA implements InterfaceA {
         private $b;
@@ -98,9 +92,6 @@ Example of creating a settings file to satisfy parameter dependencies
 settings.json
 
 ```php
-
-    use WebX\Ioc\Ioc;
-    use WebX\Ioc\Impl\IocImpl;
 
     class ClassC implements InterfaceC {
         private $mysql;
