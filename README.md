@@ -23,7 +23,7 @@ Main features and design goals of webx-ioc:
 
 
 ```
-### Resolving multiple instances
+#### Resolving multiple instances of the same interface
 ```php
 
     $ioc = new IocImpl();
@@ -33,6 +33,17 @@ Main features and design goals of webx-ioc:
     $all = $ioc->getAll(InterfaceA::class);
     // Returns an array of implementations of InterfaceA ([ClassA,ClassAB]).
 
+```
+
+#### Resolving same instance from multiple interfaces
+```php
+
+    $ioc = new IocImpl();
+    $ioc->register(ClassAB::class); // Implements InterfaceA and InterfaceB
+
+    $a = $ioc->get(InterfaceA::class);
+    $b = $ioc->get(InterfaceB::class);
+    echo($a===$b); // true
 ```
 
 ### Resolving non-resolable parameters
