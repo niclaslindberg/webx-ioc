@@ -87,7 +87,7 @@ WebX IOC recursivly resolves all dependent interfaces upon object creation. Othe
     ]
 
     $resolver = function(\ReflectionParameter $param) use ($config) {
-        if($param->getDeclaringClass()->getName()==)'\\mysqli') { //Only provide parameters for \mysqli
+        if($param->getDeclaringClass()->getName()==)'\mysqli') { //Only provide parameters for \mysqli
             return isset($config[$param->getName()]) ? $config[$param->getName()] : null;
         }
     };
@@ -102,9 +102,9 @@ WebX IOC recursivly resolves all dependent interfaces upon object creation. Othe
 
     $ioc = new IocImpl($resolver);
     $ioc->register(ClassC::class);
-    $a = $iocWithResolver->get(InterfaceA::class);
-    // WebX Ioc now instantiated ClassC with an instance of \mysqli with the
-    // parameters given by the the $resolver function.
+    $a = $ioc->get(InterfaceA::class);
+    // Instantiated \mysqli with the parameters given by the the $resolver function.
+    // Instantiated ClassC with the \mysqli instance.
 
 ```
 
