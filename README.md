@@ -41,7 +41,7 @@ Main features and design goals of webx-ioc:
     use WebX\Ioc\Ioc;
     use WebX\Ioc\Impl\IocImpl;
 
-    class ClassA implements IA {
+    class ClassA implements InterfaceA {
         private $currency;
         public function __construct(IB $b, $currency="EUR") {
             $this->currency = $currency;
@@ -58,12 +58,12 @@ Main features and design goals of webx-ioc:
     };
 
     $iocWithResolver = new IocImpl($resolver);
-    $iocWithResolver->register(ClassA::class); // Implements InterfaceA
+    $iocWithResolver->register(ClassA::class);
     $a = $iocWithResolver->get(InterfaceA::class);
     echo($a->currency())    //Returns ClassA's resolved value "USD"
 
     $ioc = new IocImpl();
-    $ioc->register(ClassA::class); // Implements InterfaceA
+    $ioc->register(ClassA::class); 
     $a = $ioc->get(InterfaceA::class);
     echo($a->currency())    //Returns ClassA's default value "EUR"
 
