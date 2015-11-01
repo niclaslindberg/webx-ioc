@@ -11,7 +11,7 @@ class IocUnknownTest extends \PHPUnit_Framework_TestCase
     public function testUnknown_NoResolver_WithDefault_Pass() {
         $ioc = new IocImpl();
         $ioc->register(UnknownArrayWithDefault::class);
-        $unknown = $ioc->create(IUnknownArray::class);
+        $unknown = $ioc->get(IUnknownArray::class);
     }
 
     /**
@@ -20,7 +20,7 @@ class IocUnknownTest extends \PHPUnit_Framework_TestCase
     public function testUnknown_NoResolver_NoDefault_Fails() {
         $ioc = new IocImpl();
         $ioc->register(UnknownArrayNoDefault::class);
-        $unknown = $ioc->create(IUnknownArray::class);
+        $unknown = $ioc->get(IUnknownArray::class);
     }
 
 
@@ -33,7 +33,7 @@ class IocUnknownTest extends \PHPUnit_Framework_TestCase
         $ioc = new IocImpl($closure);
         $ioc->register(UnknownArrayNoDefault::class);
 
-        $unknown = $ioc->create(IUnknownArray::class);
+        $unknown = $ioc->get(IUnknownArray::class);
         $this->assertNotNull($unknown);
         $this->assertSame($array,$unknown->getArray());
     }

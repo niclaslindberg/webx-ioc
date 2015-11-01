@@ -8,11 +8,8 @@ use WebX\Ioc\IocException;
 class IocImpl implements Ioc {
 
     private $pointersByInterface = array();
-
     private $instancesByInterface = array();
-
     private $defsList = array();
-
     private $resolver;
 
     /**
@@ -21,7 +18,7 @@ class IocImpl implements Ioc {
      * <code>
      *  function(\ReflectionParameter $constructorParameter){};
      * </code>
-     * If the closure return's a value it will be used as the constructor parameter value if not the default constructor parameter value will be used,
+     * If the closure return's a value!==NULL it will be used for the parameter otherwise the parameter's default value will be used,
      */
     public function __construct(\Closure $unknownResolver = null) {
         $this->resolver = $unknownResolver;
@@ -40,14 +37,14 @@ class IocImpl implements Ioc {
         }
     }
 
-    public function create($interfaceName) {
-        if($instances = $this->resolveInstances($interfaceName)) {
+    public function get($interfaceName) {
+        if(($instances = $this->resolveInstances($interfaceName))) {
             return $instances[0];
         }
         throw new IocException("Could not resolve any implementations for {$interfaceName}");
     }
 
-    public function createAll($interfaceName) {
+    public function getAll($interfaceName) {
         return $this->resolveInstances($interfaceName) ?: [];
     }
 

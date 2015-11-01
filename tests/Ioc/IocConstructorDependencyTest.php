@@ -14,9 +14,9 @@ class IocConstructorDependencyTest extends \PHPUnit_Framework_TestCase
         $ioc->register(A::class);
         $ioc->register(DependentA::class);
 
-        $dependentA = $ioc->create(IDependentA::class);
+        $dependentA = $ioc->get(IDependentA::class);
         $this->assertNotNull($dependentA);
-        $a = $ioc->create(IA::class);
+        $a = $ioc->get(IA::class);
         $this->assertSame($a,$dependentA->getA());
     }
 
@@ -25,8 +25,8 @@ class IocConstructorDependencyTest extends \PHPUnit_Framework_TestCase
 
         $ioc->register(DependentA::class);
         $ioc->register(A::class);
-        $a = $ioc->create(IA::class);
-        $dependentA = $ioc->create(IDependentA::class);
+        $a = $ioc->get(IA::class);
+        $dependentA = $ioc->get(IDependentA::class);
 
         $this->assertNotNull($dependentA);
         $this->assertNotNull($a);

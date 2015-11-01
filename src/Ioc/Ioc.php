@@ -9,24 +9,24 @@ namespace WebX\Ioc;
 interface Ioc {
 
     /**
-     * Registers an a classname or an instance with all its implemented interfaces with the container.
-     * @param $classNameOrObject
-     * @return mixed
+     * Registers this classname or instance with as implementation for all its interfaces with the container.
+     * @param string|object $classNameOrObject
+     * @return void
      */
     public function register($classNameOrObject);
 
     /**
-     * Returns an object that implements the interface.
+     * Returns an instance that implements the interface.
      * @param $interfaceName
-     * @return mixed
+     * @return object
      */
-    public function create($interfaceName);
+    public function get($interfaceName);
 
     /**
-     * Returns all objects that implements the interface.
+     * Returns all objects that implement the interface.
      * @param $interfaceName
      * @return mixed
      */
-    public function createAll($interfaceName);
+    public function getAll($interfaceName);
 
 }
