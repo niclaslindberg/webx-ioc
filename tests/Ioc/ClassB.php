@@ -10,6 +10,8 @@ namespace WebX\Ioc;
 
 class ClassB implements IB
 {
+    use ToStringTrait;
+
     public function doB()
     {
         // TODO: Implement doA() method.

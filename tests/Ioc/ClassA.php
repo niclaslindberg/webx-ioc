@@ -10,6 +10,8 @@ namespace WebX\Ioc;
 
 class ClassA implements IA
 {
+    use ToStringTrait;
+
     public function doA()
     {
         // TODO: Implement doA() method.

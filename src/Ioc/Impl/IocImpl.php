@@ -7,9 +7,11 @@ use WebX\Ioc\IocException;
 
 class IocImpl implements Ioc {
 
-    protected $defByType = array();
+    protected $pointersByInterface = array();
 
-    protected $instanceByType = array();
+    protected $instancesByInterface = array();
+
+    private $defsList = array();
 
     /**
      * @var \Closure
@@ -18,18 +20,20 @@ class IocImpl implements Ioc {
 
     public function __construct(\Closure $unknownResolver = null) {
         $this->resolver = $unknownResolver ?: function(\ReflectionClass $refClass, \ReflectionParameter $refParam) {
-            throw new IocException(sprintf("Non resolved unknown: %s.%s",$refClass->getShortName(),$refParam->getName()));
+            throw new IocException(sprintf("Non resolved unknown: %s.%s",[$refClass->getName(),$refParam->getName()]));
         };
     }
 
     public function register($classNameOrObject) {
         $refClass = new \ReflectionClass($classNameOrObject);
         if($refClass->isInstantiable()) {
+            $this->defsList[] = $classNameOrObject;
+            $pointer = count($this->defsList)-1;
             foreach ($refClass->getInterfaces() as $refInterface) {
-                $this->defByType[$refInterface->getName()][] = $classNameOrObject;
+                $this->pointersByInterface[$refInterface->getName()][] = $pointer;
             }
         } else {
-            throw new IocException("Not an instantiable class.");
+            throw new IocException("Can't register an non-instantiable type. Hint: Register a concrete class name or an instance of a class.");
         }
     }
 
@@ -46,19 +50,18 @@ class IocImpl implements Ioc {
     }
 
     private function resolveInstances($interfaceName) {
-        if(NULL !== ($instances = isset($this->instanceByType[$interfaceName]) ? $this->instanceByType[$interfaceName] : null)) {
+        if(NULL !== ($instances = isset($this->instancesByInterface[$interfaceName]) ? $this->instancesByInterface[$interfaceName] : null)) {
             return $instances;
-        } else if (NULL !== ($defs = isset($this->defByType[$interfaceName]) ? $this->defByType[$interfaceName] : null)) {
+        } else if (NULL !== ($pointers = isset($this->pointersByInterface[$interfaceName]) ? $this->pointersByInterface[$interfaceName] : null)) {
             $instances = [];
-            foreach($defs as $def) {
+            foreach($pointers as $pointer) {
+                $def = &$this->defsList[$pointer];
                 if(is_string($def)) {
-                    $instances[] = $this->instantiate(new \ReflectionClass($def));
-                } else {
-                    $instances[] = $def;
+                    $def = $this->instantiate(new \ReflectionClass($def));
                 }
-                $this->instanceByType[$interfaceName] = $instances;
+                $instances[] = $def;
             }
-            return $instances;
+            return $this->instancesByInterface[$interfaceName] = $instances;
         } else {
             throw new IocException("Could not resolve {$interfaceName}");
         }

@@ -44,9 +44,7 @@ class IocTest extends \PHPUnit_Framework_TestCase
 
         $a = $ioc->create(IA::class);
         $this->assertInstanceOf(IA::class,$a);
-
     }
-
 
     public function testRegisterClassWithMultipleImplementationsReturnsSameInstance() {
         $ioc = new IocImpl();
