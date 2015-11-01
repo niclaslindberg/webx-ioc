@@ -1,0 +1,26 @@
+{
+  "name" : "webx/ioc",
+  "keywords" : ["ioc","di"],
+  "autoload": {
+    "psr-4": {
+      "WebX\\Ioc\\":  "src/Ioc/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "WebX\\Ioc\\":  "tests/Ioc/"
+    }
+  },
+  "require-dev" : {
+    "php": ">=5.5.0",
+    "phpunit/phpunit" : "4.8.16"
+  },
+  "authors": [
+    {
+      "name": "Nillsoft AB",
+      "email": "niclas.lindberg@nillsoft.com",
+      "homepage": "http://www.nillsoft.com"
+    }
+  ],
+  "license": "MIT"
+}
