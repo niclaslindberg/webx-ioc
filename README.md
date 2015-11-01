@@ -7,7 +7,7 @@ Main features and design goals of webx-ioc:
 * Light weight (Less than 100 lines).
 
 ## Installing
-    * Packagist: webx-ioc
+    * Packagist: webx/ioc
 
 ## Getting started
 ```php
