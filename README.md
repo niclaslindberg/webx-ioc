@@ -11,6 +11,7 @@ Main features and design goals of webx-ioc:
     * Packagist: webx/ioc
 
 ## Getting started
+To get started the IOC container must be initialized and implementations must be registered.
 ```php
     use WebX\Ioc\Ioc;
     use WebX\Ioc\Impl\IocImpl;
@@ -20,9 +21,8 @@ Main features and design goals of webx-ioc:
 
     $a = $ioc->get(InterfaceA::class);
     // Returns an implementation of InterfaceA (ClassA).
-
-
 ```
+
 #### Resolving multiple instances of the same interface
 ```php
 
