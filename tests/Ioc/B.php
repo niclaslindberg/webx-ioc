@@ -8,11 +8,11 @@
 namespace WebX\Ioc;
 
 
-class ClassA implements IA
+class B implements IB
 {
     use ToStringTrait;
 
-    public function doA()
+    public function doB()
     {
         // TODO: Implement doA() method.
     }

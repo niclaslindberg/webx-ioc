@@ -19,7 +19,7 @@ class IocTest extends \PHPUnit_Framework_TestCase
     public function testA() {
         $ioc = new IocImpl();
 
-        $ioc->register(ClassA::class);
+        $ioc->register(A::class);
         $a = $ioc->create(IA::class);
         $this->assertNotNull($a);
         $this->assertInstanceOf(IA::class,$a);
@@ -32,8 +32,8 @@ class IocTest extends \PHPUnit_Framework_TestCase
     public function testMultipleRegistrationsOfSameInterfaceReturnedInCreateAllPass() {
         $ioc = new IocImpl();
 
-        $ioc->register(ClassA::class);
-        $ioc->register(ClassAB::class);
+        $ioc->register(A::class);
+        $ioc->register(AB::class);
         $allA = $ioc->createAll(IA::class);
         $this->assertNotNull($allA);
         $this->assertArrayHasKey(0,$allA);
@@ -48,7 +48,7 @@ class IocTest extends \PHPUnit_Framework_TestCase
 
     public function testRegisterClassWithMultipleImplementationsReturnsSameInstance() {
         $ioc = new IocImpl();
-        $ioc->register(ClassAB::class);
+        $ioc->register(AB::class);
         $a = $ioc->create(IA::class);
         $this->assertInstanceOf(IA::class,$a);
 
@@ -56,7 +56,6 @@ class IocTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf(IB::class,$b);
 
         $this->assertSame($a,$b);
-
     }
 
 }

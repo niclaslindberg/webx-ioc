@@ -12,6 +12,6 @@ Trait ToStringTrait {
 
 
     public function __toString() {
-        return get_class($this);
+        return "Instance:" . get_class($this);
     }
 }

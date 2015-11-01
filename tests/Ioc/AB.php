@@ -8,7 +8,7 @@
 namespace WebX\Ioc;
 
 
-class ClassAB implements IB, IA
+class AB implements IB, IA
 {
     use ToStringTrait;
 

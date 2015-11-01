@@ -7,17 +7,22 @@ use WebX\Ioc\IocException;
 
 class IocImpl implements Ioc {
 
-    protected $pointersByInterface = array();
+    private $pointersByInterface = array();
 
-    protected $instancesByInterface = array();
+    private $instancesByInterface = array();
 
     private $defsList = array();
 
-    /**
-     * @var \Closure
-     */
-    protected $resolver;
+    private $resolver;
 
+    /**
+     * @param \Closure|null $unknownResolver the function to be called by the IOC when a dependent construct parameter can't be resolved from registered implementation classes.
+     * The function must be defined as
+     * <code>
+     *  function(\ReflectionParameter $constructorParameterName, \ReflectionClass $contructorParameterType);
+     * </code>
+     * If the closure return's a value it will be used the constructor parameter value if not the default,
+     */
     public function __construct(\Closure $unknownResolver = null) {
         $this->resolver = $unknownResolver ?: function(\ReflectionClass $refClass, \ReflectionParameter $refParam) {
             throw new IocException(sprintf("Non resolved unknown: %s.%s",[$refClass->getName(),$refParam->getName()]));
@@ -37,12 +42,11 @@ class IocImpl implements Ioc {
         }
     }
 
-    public function setUnknownResolver(\Closure $closure) {
-        $this->resolver = $closure;
-    }
-
     public function create($interfaceName) {
-        return $this->resolveInstances($interfaceName)[0];
+        if($instances = $this->resolveInstances($interfaceName)) {
+            return $instances[0];
+        }
+        throw new IocException("Could not resolve any implementations for {$interfaceName}");
     }
 
     public function createAll($interfaceName) {
@@ -61,21 +65,21 @@ class IocImpl implements Ioc {
                 }
                 $instances[] = $def;
             }
-            return $this->instancesByInterface[$interfaceName] = $instances;
+            $this->instancesByInterface[$interfaceName] = $instances;
+            return $instances;
         } else {
-            throw new IocException("Could not resolve {$interfaceName}");
+           return [];
         }
     }
 
     private function instantiate(\ReflectionClass $refClass) {
-
         if($constructor = $refClass->getConstructor()) {
             if ($parameters = $constructor->getParameters()) {
                 $arguments = array();
                 foreach ($parameters as $p) {
                     $paramRefClass = $p->getClass();
-                    if ($paramRefClass->isInterface() && ($instance = $this->instantiate($paramRefClass))) {
-                        $arguments[] = $instance;
+                    if ($paramRefClass->isInterface() && ($instances = $this->resolveInstances($paramRefClass->getName()))) {
+                        $arguments[] = $instances[0];
                     } else {
                         if (NULL !== ($instance = $this->resolver($p, $refClass))) {
                             $arguments[] = $instance;
@@ -83,6 +87,7 @@ class IocImpl implements Ioc {
                             $arguments[] = $p->isDefaultValueAvailable() ? $p->defaultValue() : null;
                         }
                     }
+                    return $refClass->newInstanceArgs($arguments);
                 }
             } else {
                 return $refClass->newInstanceArgs();
