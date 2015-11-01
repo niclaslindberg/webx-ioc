@@ -66,7 +66,8 @@ WebX IOC recursively resolves all registered dependent interfaces upon object cr
         }
     }
 
-    // Will be invoked whenever the container needs to resolve an non-resolvable parameter.
+    // Will be invoked whenever the container needs
+    // to resolve an non-resolvable parameter.
     $resolver = function(\ReflectionParameter $param) {
         if($param->name()==='currency') {
             return "USD";
