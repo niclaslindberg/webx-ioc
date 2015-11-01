@@ -19,14 +19,12 @@ class IocImpl implements Ioc {
      * @param \Closure|null $unknownResolver the function to be called by the IOC when a dependent construct parameter can't be resolved from registered implementation classes.
      * The function must be defined as
      * <code>
-     *  function(\ReflectionParameter $constructorParameterName, \ReflectionClass $contructorParameterType);
+     *  function(\ReflectionParameter $constructorParameter){};
      * </code>
-     * If the closure return's a value it will be used the constructor parameter value if not the default,
+     * If the closure return's a value it will be used as the constructor parameter value if not the default constructor parameter value will be used,
      */
     public function __construct(\Closure $unknownResolver = null) {
-        $this->resolver = $unknownResolver ?: function(\ReflectionClass $refClass, \ReflectionParameter $refParam) {
-            throw new IocException(sprintf("Non resolved unknown: %s.%s",[$refClass->getName(),$refParam->getName()]));
-        };
+        $this->resolver = $unknownResolver;
     }
 
     public function register($classNameOrObject) {
@@ -50,7 +48,7 @@ class IocImpl implements Ioc {
     }
 
     public function createAll($interfaceName) {
-        return $this->resolveInstances($interfaceName);
+        return $this->resolveInstances($interfaceName) ?: [];
     }
 
     private function resolveInstances($interfaceName) {
@@ -67,8 +65,6 @@ class IocImpl implements Ioc {
             }
             $this->instancesByInterface[$interfaceName] = $instances;
             return $instances;
-        } else {
-           return [];
         }
     }
 
@@ -77,14 +73,17 @@ class IocImpl implements Ioc {
             if ($parameters = $constructor->getParameters()) {
                 $arguments = array();
                 foreach ($parameters as $p) {
-                    $paramRefClass = $p->getClass();
-                    if ($paramRefClass->isInterface() && ($instances = $this->resolveInstances($paramRefClass->getName()))) {
+                    if (($paramRefClass = $p->getClass()) && $paramRefClass->isInterface() && ($instances = $this->resolveInstances($paramRefClass->getName()))) {
                         $arguments[] = $instances[0];
                     } else {
-                        if (NULL !== ($instance = $this->resolver($p, $refClass))) {
+                        if ($this->resolver && (NULL !== ($instance = call_user_func_array($this->resolver,[$p])))) {
                             $arguments[] = $instance;
                         } else {
-                            $arguments[] = $p->isDefaultValueAvailable() ? $p->defaultValue() : null;
+                            if($p->isDefaultValueAvailable()) {
+                                $arguments[] = $p->getDefaultValue();
+                            } else {
+                                throw new IocException(sprintf("Unresolved parameter '%s' in '%s' without default value",$p->getName(),$refClass->getName()));
+                            }
                         }
                     }
                     return $refClass->newInstanceArgs($arguments);

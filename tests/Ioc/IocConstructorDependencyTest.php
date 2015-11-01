@@ -19,4 +19,17 @@ class IocConstructorDependencyTest extends \PHPUnit_Framework_TestCase
         $a = $ioc->create(IA::class);
         $this->assertSame($a,$dependentA->getA());
     }
+
+    public function testResolveDependencyViaConstructorReversedOrder() {
+        $ioc = new IocImpl();
+
+        $ioc->register(DependentA::class);
+        $ioc->register(A::class);
+        $a = $ioc->create(IA::class);
+        $dependentA = $ioc->create(IDependentA::class);
+
+        $this->assertNotNull($dependentA);
+        $this->assertNotNull($a);
+        $this->assertSame($a,$dependentA->getA());
+    }
 }

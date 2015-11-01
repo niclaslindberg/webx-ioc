@@ -5,15 +5,15 @@ namespace WebX\Ioc;
 use WebX\Ioc\Impl\IocImpl;
 use WebX\Ioc\IocException;
 
-class IocTest extends \PHPUnit_Framework_TestCase
+class IocBasicTest extends \PHPUnit_Framework_TestCase
 {
 
+    /**
+     * @expectedException \WebX\Ioc\IocException
+     */
     public function testRegisterInterfaceFails() {
         $ioc = new IocImpl();
-        try {
-            $ioc->register(IA::class);
-            $this->fail("Should not be able to register an interface.");
-        } catch(IocException $e) {}
+        $ioc->register(IA::class);
     }
 
     public function testA() {
