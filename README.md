@@ -46,7 +46,7 @@ To get started the IOC container must be initialized and implementations must be
     echo($a===$b); // true
 ```
 
-### Resolving non-resolable parameters
+### Resolving non-resolvable parameters
 WebX IOC recursively resolves all registered dependent interfaces upon object creation. Other dependencies must be resolved externally.
 #### Example 1
 ```php
