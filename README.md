@@ -2,7 +2,7 @@
 Main features and design goals of webx-ioc:
 * Resolve single and array of instances of an interface.
 * Simple setup and configuration.
-* Easy to extend to resolve non-resolvable parameters.
+* Easy to extend to resolve non-resolvable dependencies.
 * No external dependencies.
 * Easy to integrate with any framework / application.
 * Fast & light weight (Less than 100 lines).
@@ -49,6 +49,8 @@ WebX IOC recursively resolves all dependent interfaces upon object creation. Oth
         private $currency;
 
         public function __construct(InterfaceB $b, $currency="EUR") {
+        //$currency is not an interface and will be resolved by the resolver function
+        
             $this->currency = $currency;
         }
         public function currency() {
