@@ -38,8 +38,8 @@ Main features and design goals of webx-ioc:
 
 ```
 
-### Resolving non-resolable parameters
-WebX IOC recursively resolves all dependent interfaces upon object creation. Other parameters needs to be defined externally.
+### Resolving non-resolable parameters - Ex 1
+WebX IOC recursively resolves all dependent interfaces upon object creation. Other parameters need to be resolved externally.
 ```php
 
     use WebX\Ioc\Ioc;
@@ -81,7 +81,7 @@ WebX IOC recursively resolves all dependent interfaces upon object creation. Oth
     //Returns ClassA's default value for $currency "EUR"
 
 ```
-### Resolving non-resolvable parameters Ex 2
+### Resolving non-resolvable parameters - Ex 2
 Example of creating a settings file to satisfy parameter dependencies
 
 ```json
