@@ -1,7 +1,7 @@
 # WebX-Db - PHP IOC Container
 Main features and design goals of webx-ioc:
 * Resolve single and array of instances of an interface.
-* Simple registration.
+* Simple setup and configuration.
 * Easy to integrate with non-resolvable parameters.
 * No external dependencies.
 * Easy to integrate with any framework / application.
