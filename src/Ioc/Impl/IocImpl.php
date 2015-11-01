@@ -83,8 +83,8 @@ class IocImpl implements Ioc {
                             }
                         }
                     }
-                    return $refClass->newInstanceArgs($arguments);
                 }
+                return $refClass->newInstanceArgs($arguments);
             } else {
                 return $refClass->newInstanceArgs();
             }
