@@ -156,3 +156,7 @@ In the root of the project:
   `composer install`
 
   `phpunit -c tests`
+
+## Related projects
+
+* `webx/db` https://github.com/niclaslindberg/webx-db
