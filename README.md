@@ -8,7 +8,7 @@ Main features and design goals of webx-ioc:
 * No external dependencies.
 
 ## Installing
-    * Packagist: webx/ioc <https://packagist.org/packages/webx/ioc>
+    * Packagist: webx/ioc https://packagist.org/packages/webx/ioc
 
 ## Getting started
 To get started the IOC container must be initialized and implementations must be registered.
