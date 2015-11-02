@@ -12,11 +12,18 @@ Main features and design goals of webx-ioc:
 
 ## Getting started
 To get started the IOC container must be initialized and implementations must be registered.
+
+
 ```php
     use WebX\Ioc\Ioc;
-    use WebX\Ioc\Impl\IocImpl;
+    use WebX\Ioc\Util\Bootstrap;   //Ready to use bootstrapper.
+```
 
-    $ioc = new IocImpl();
+```php
+
+    class ClassA implements InterfaceA {}
+
+    $ioc = Bootstrap::ioc();
     $ioc->register(ClassA::class); // ClassA implements InterfaceA
 
     $a = $ioc->get(InterfaceA::class);
@@ -26,20 +33,28 @@ To get started the IOC container must be initialized and implementations must be
 #### Resolving multiple instances of the same interface
 ```php
 
-    $ioc = new IocImpl();
-    $ioc->register(ClassA::class); // Implements InterfaceA
-    $ioc->register(ClassAB::class); // Implements InterfaceA and InterfaceB
+    class ClassA implements InterfaceA {}
+    class ClassAB implements InterfaceA, InterfaceB {}
 
-    $all = $ioc->getAll(InterfaceA::class);
-    // Returns an array of implementations of InterfaceA ([ClassA,ClassAB]).
+    $ioc = Bootstrap::ioc();
+    $ioc->register(ClassA::class);
+    $ioc->register(ClassAB::class);
+
+    $allA = $ioc->getAll(InterfaceA::class);
+    // Returns an array of all instances of InterfaceA ([objectA,objectAB]).
+
+    $allB = $ioc->getAll(InterfaceB::class);
+    // Returns an array of all instances of InterfaceB ([objectAB]).
 
 ```
 
 #### Resolving same instance from multiple interfaces
 ```php
 
-    $ioc = new IocImpl();
-    $ioc->register(ClassAB::class); // Implements InterfaceA and InterfaceB
+    class ClassAB implements InterfaceA,InterfaceB {}
+
+    $ioc = Bootstrap::ioc();
+    $ioc->register(ClassAB::class);
 
     $a = $ioc->get(InterfaceA::class);
     $b = $ioc->get(InterfaceB::class);
@@ -74,14 +89,14 @@ WebX IOC recursively resolves all registered dependent interfaces upon object cr
         }
     };
 
-    $iocWithResolver = new IocImpl($resolver);
+    $iocWithResolver = Bootstrap::ioc($resolver);
     $iocWithResolver->register(ClassA::class);
     $iocWithResolver->register(ClassB::class);
     $a = $iocWithResolver->get(InterfaceA::class);
     echo($a->currency());
     //Returns ClassA's resolved value for $currency "USD"
 
-    $ioc = new IocImpl();
+    $ioc = Bootstrap::ioc();
     $ioc->register(ClassA::class);
     $ioc->register(ClassB::class);
     $a = $ioc->get(InterfaceA::class);
@@ -121,7 +136,7 @@ settings.json
         return isset($config[$key][$subKey]) ? $config[$key][$subKey] : null;
     };
 
-    $ioc = new IocImpl($resolver);
+    $ioc = Bootstrap::ioc($resolver);
     $ioc->register(ClassC::class);
     $a = $ioc->get(InterfaceA::class);
     // Instantiated \mysqli with the parameters given by the the $resolver function.
@@ -129,6 +144,10 @@ settings.json
 
 ```
 Construct parameters for the \mysqli client is provided by a JSON settings file.
+
+### Utilities
+
+* ```WebX\Ioc\Util\Bootstrap``` Simple, easy to use bootstrapper for a single shared instance of Ioc.
 
 
 ## How to run tests

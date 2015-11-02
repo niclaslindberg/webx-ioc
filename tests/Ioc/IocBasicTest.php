@@ -16,6 +16,39 @@ class IocBasicTest extends \PHPUnit_Framework_TestCase
         $ioc->register(IA::class);
     }
 
+    public function registerInstanceAndResolvePass() {
+        $ioc = new IocImpl();
+        $a = new A();
+        $ioc->register($a);
+        $a2 = $ioc->get(IA::class);
+        $this->assertSame($a,$a2);
+    }
+
+    public function registerItselfPass() {
+        $ioc = new IocImpl();
+        $ioc->register($ioc);
+        $ioc2 = $ioc->get(Ioc::class);
+        $this->assertSame($ioc,$ioc2);
+    }
+
+
+    /**
+     * @expectedException \WebX\Ioc\IocException
+     */
+    public function testRegisterNullFails() {
+        $ioc = new IocImpl();
+        $ioc->register(null);
+    }
+
+    /**
+     * @expectedException \WebX\Ioc\IocException
+     */
+    public function testRegisterNonExistentClassFails() {
+        $ioc = new IocImpl();
+        $ioc->register(null);
+    }
+
+
     public function testA() {
         $ioc = new IocImpl();
 

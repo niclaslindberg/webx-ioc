@@ -25,15 +25,19 @@ class IocImpl implements Ioc {
     }
 
     public function register($classNameOrObject) {
-        $refClass = new \ReflectionClass($classNameOrObject);
-        if($refClass->isInstantiable()) {
-            $this->defsList[] = $classNameOrObject;
-            $pointer = count($this->defsList)-1;
-            foreach ($refClass->getInterfaces() as $refInterface) {
-                $this->pointersByInterface[$refInterface->getName()][] = $pointer;
+        try {
+            $refClass = new \ReflectionClass($classNameOrObject);
+            if ($refClass->isInstantiable()) {
+                $this->defsList[] = $classNameOrObject;
+                $pointer = count($this->defsList) - 1;
+                foreach ($refClass->getInterfaces() as $refInterface) {
+                    $this->pointersByInterface[$refInterface->getName()][] = $pointer;
+                }
+            } else {
+                throw new IocException("Can't register an non-instantiable class. Hint: Register a concrete class name or an instance of a class.");
             }
-        } else {
-            throw new IocException("Can't register an non-instantiable type. Hint: Register a concrete class name or an instance of a class.");
+        } catch(\ReflectionException $e) {
+            throw new IocException(sprintf($e->getMessage(),$e));
         }
     }
 
