@@ -71,7 +71,7 @@ WebX IOC recursively resolves all registered dependent interfaces upon object cr
         private $currency;
 
         public function __construct(InterfaceB $b, $currency="EUR") {
-        //$b is automatically resolved by the container ($classB is registered).
+        //$b is automatically resolved by the container (ClassB is registered).
         //$currency is not an interface and will be resolved by the resolver function
             $this->b = $b;
             $this->currency = $currency;
