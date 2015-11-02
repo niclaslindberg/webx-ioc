@@ -61,6 +61,22 @@ To get started the IOC container must be initialized and implementations must be
     echo($a===$b); // true
 ```
 
+
+#### Registering an already existing instance
+The container support to register an existing instance to resolved by its interface.
+```php
+
+    class ClassA implements InterfaceA {}
+
+    $a = new ClassA(); // Instantiated outside the container.
+    $ioc = Bootstrap::ioc();
+    $ioc->register($a);
+
+    $a2 = $ioc->get(InterfaceA::class);
+    echo($a===$a2); // true
+```
+
+
 ### Resolving non-resolvable parameters
 WebX IOC recursively resolves all registered dependent interfaces upon object creation. Other dependencies must be resolved externally.
 #### Example 1
