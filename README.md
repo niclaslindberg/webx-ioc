@@ -63,7 +63,7 @@ To get started the IOC container must be initialized and implementations must be
 
 
 #### Registering an already existing instance
-The container support to register an existing instance to resolved by its interface.
+The container supports to register an existing instance to resolved by its interface.
 ```php
 
     class ClassA implements InterfaceA {}
