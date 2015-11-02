@@ -124,7 +124,7 @@ settings.json
     class ClassC implements InterfaceC {
         private $mysql;
         public function __construct(\mysqli $mysql) {
-            $this->mysql;
+            $this->mysql = $mysql;
         }
     }
 
