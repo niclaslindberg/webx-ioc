@@ -152,16 +152,13 @@ settings.json
 ```
 Construct parameters for the \mysqli client is provided by a JSON settings file.
 ### Utilities
-
 * ```WebX\Ioc\Util\Bootstrap``` Simple, easy to use bootstrapper for a single shared instance of Ioc.
-
-## How to run tests
+### How to run tests
 In the root of the project:
+```bash
+    composer install
+    phpunit -c tests
+```
 
-  `composer install`
-
-  `phpunit -c tests`
-
-## Related projects
-
+### Related projects
 * `webx/db` https://github.com/niclaslindberg/webx-db
