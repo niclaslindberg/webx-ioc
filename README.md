@@ -13,14 +13,12 @@ Packagist: `webx/ioc` http://packagist.org/packages/webx/ioc
 ## Getting started
 To get started the IOC container must be initialized and implementations must be registered.
 
-
 ```php
     use WebX\Ioc\Ioc;
     use WebX\Ioc\Util\Bootstrap;   //Ready to use bootstrapper.
 ```
 
 ```php
-
     class ClassA implements InterfaceA {}
 
     $ioc = Bootstrap::ioc();
@@ -32,7 +30,6 @@ To get started the IOC container must be initialized and implementations must be
 
 #### Resolving multiple instances of the same interface
 ```php
-
     class ClassA implements InterfaceA {}
     class ClassAB implements InterfaceA, InterfaceB {}
 
@@ -50,7 +47,6 @@ To get started the IOC container must be initialized and implementations must be
 
 #### Resolving same instance from multiple interfaces
 ```php
-
     class ClassAB implements InterfaceA,InterfaceB {}
 
     $ioc = Bootstrap::ioc();
@@ -65,7 +61,6 @@ To get started the IOC container must be initialized and implementations must be
 #### Registering an already existing instance
 The container supports to register an existing instance to resolved by its interface.
 ```php
-
     class ClassA implements InterfaceA {}
 
     $a = new ClassA(); // Instantiated outside the container.
@@ -81,7 +76,6 @@ The container supports to register an existing instance to resolved by its inter
 WebX IOC recursively resolves all registered dependent interfaces upon object creation. Other dependencies must be resolved externally.
 #### Example 1
 ```php
-
     class ClassA implements InterfaceA {
         private $b;
         private $currency;
@@ -122,7 +116,6 @@ WebX IOC recursively resolves all registered dependent interfaces upon object cr
 ```
 #### Example 2
 Example of creating a settings file to satisfy parameter dependencies
-
 ```json
 {
     "mysqli" : {
@@ -136,7 +129,6 @@ Example of creating a settings file to satisfy parameter dependencies
 settings.json
 
 ```php
-
     class ClassC implements InterfaceC {
         private $mysql;
         public function __construct(\mysqli $mysql) {
@@ -157,14 +149,11 @@ settings.json
     $a = $ioc->get(InterfaceA::class);
     // Instantiated \mysqli with the parameters given by the the $resolver function.
     // Instantiated ClassC with the \mysqli instance.
-
 ```
 Construct parameters for the \mysqli client is provided by a JSON settings file.
-
 ### Utilities
 
 * ```WebX\Ioc\Util\Bootstrap``` Simple, easy to use bootstrapper for a single shared instance of Ioc.
-
 
 ## How to run tests
 In the root of the project:
