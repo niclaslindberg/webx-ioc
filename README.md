@@ -24,10 +24,10 @@ To get started the IOC container must be initialized and implementations must be
     class ClassA implements InterfaceA {}
 
     $ioc = Bootstrap::ioc();
-    $ioc->register(ClassA::class); // ClassA implements InterfaceA
+    $ioc->register(ClassA::class);
 
     $a = $ioc->get(InterfaceA::class);
-    // Returns an implementation of InterfaceA (ClassA).
+    // objectA - instance of classA (implements InterfaceA).
 ```
 
 #### Resolving multiple instances of the same interface
@@ -41,10 +41,10 @@ To get started the IOC container must be initialized and implementations must be
     $ioc->register(ClassAB::class);
 
     $allA = $ioc->getAll(InterfaceA::class);
-    // Returns an array of all instances of InterfaceA ([objectA,objectAB]).
+    // [objectA,objectAB] - array of all instances of InterfaceA.
 
     $allB = $ioc->getAll(InterfaceB::class);
-    // Returns an array of all instances of InterfaceB ([objectAB]).
+    // [objectAB] - array of all instances of InterfaceB.
 
 ```
 
