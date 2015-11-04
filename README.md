@@ -121,7 +121,7 @@ Example of creating a settings file to satisfy parameter dependencies
     "mysqli" : {
         "user" : "u",
         "password" : "p",
-        "database" : "127.0.0.1"
+        "dbname" : "127.0.0.1"
     }
 }
 
