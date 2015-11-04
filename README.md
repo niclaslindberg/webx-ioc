@@ -116,6 +116,7 @@ WebX IOC recursively resolves all registered dependent interfaces upon object cr
 ```
 #### Example 2
 Example of creating a settings file to satisfy parameter dependencies
+The `user`, `password` and `dbaname` are the names of the constructor parameters of `\mysqli`
 ```json
 {
     "mysqli" : {
