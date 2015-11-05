@@ -33,4 +33,20 @@ class IocNamedInstancesTest extends \PHPUnit_Framework_TestCase
         $ioc->register(AB::class,"instance1");
         $ioc->register(A::class, "instance1");
     }
+
+    public function testRegisterTwoNamedImplsFindByIdPasses() {
+        $ioc = new IocImpl();
+
+        $a1 = new A();
+        $a2 = new A();
+
+        $ioc->register($a1,"instance1");
+        $ioc->register($a2,"instance2");
+
+        $a2b = $ioc->get(IA::class,"instance2");
+
+        $this->assertSame($a2,$a2b);
+        $this->assertNotSame($a1,$a2b);
+    }
+
 }

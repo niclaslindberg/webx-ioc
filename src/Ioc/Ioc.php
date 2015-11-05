@@ -11,8 +11,9 @@ interface Ioc {
     /**
      * Registers a className or instance as implementation for all its interfaces with the container.
      * @param string|object $classNameOrObject
-     * @param string|null $id if the instance should be bound to a unique id.
+     * @param string|null $id if the instance should be bound to a unique id (unique per interface type).
      * @return void
+     * @throws IocException if a registration error occurs (Reflection exception, Non-instantiable class or duplicated Id).
      */
     public function register($classNameOrObject, $id = null);
 

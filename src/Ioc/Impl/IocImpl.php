@@ -17,7 +17,7 @@ class IocImpl implements Ioc {
      * @param \Closure|null $unknownResolver the function to be called by the IOC when a dependent construct parameter can't be resolved from registered implementation classes.
      * The function must be defined as
      * <code>
-     *  function(\ReflectionParameter $constructorParameter){};
+     *  function(\ReflectionParameter $constructorParameter, $id=null){};
      * </code>
      * If the closure return's a value!==NULL it will be used for the parameter otherwise the parameter's default value will be used,
      */
