@@ -5,7 +5,7 @@ Main features and design goals of webx-ioc:
 * Simplicity.
 * Support for resolving non-resolvable dependencies.
 * Easy to integrate with any framework / application.
-* Very fast & light weight (< 100 lines, lazy initialization, etc).
+* Very fast & light weight (< 100 lines, lazy initialization, resolution cache etc).
 * No external dependencies.
 
 ## Installing
