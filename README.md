@@ -18,7 +18,7 @@ To get started the IOC container must be initialized and implementations must be
     use WebX\Ioc\Ioc;
     use WebX\Ioc\Util\Bootstrap;   //Ready to use bootstrapper.
 ```
-
+#### Resolving an instance by interface
 ```php
     class ClassA implements InterfaceA {}
 
@@ -28,7 +28,6 @@ To get started the IOC container must be initialized and implementations must be
     $a = $ioc->get(InterfaceA::class);
     // objectA - instance of classA (implements InterfaceA).
     $a2 = $ioc->get(InterfaceA::class);
-    // Same instance is returned.
     echo($a===$a2); // true
 ```
 
