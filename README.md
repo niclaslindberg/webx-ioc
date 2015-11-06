@@ -1,8 +1,9 @@
 # WebX-Ioc - PHP IOC Container
 Main features and design goals of webx-ioc:
 * Resolve instance(single) and array of instances(list) of an interface.
-* Simple setup and configuration.
-* Easy to extend to resolve non-resolvable dependencies.
+* Support for named instances and constructor parameter mappings.
+* Simplicity.
+* Support for resolving non-resolvable dependencies.
 * Easy to integrate with any framework / application.
 * Very fast & light weight (< 100 lines, lazy initialization, etc).
 * No external dependencies.
@@ -71,6 +72,42 @@ The container supports registration of already existing instances to be resolved
     echo($a===$a2); // true
 ```
 
+#### Registering a named instance or class
+```php
+    class ClassA implements InterfaceA {}
+
+    $ioc = Bootstrap::ioc();
+    $ioc->register($a,"id1");
+    $ioc->register($a,"id2");
+
+    $a1 = $ioc->get(InterfaceA::class,"id1");
+    $a2 = $ioc->get(InterfaceA::class,"id2");
+    echo($a1 !== $a2); // true
+```
+#### Registering a named instance and configuring a mapping to it
+```php
+    class ClassA implements InterfaceA {}
+
+    class ClassB implements InterfaceB {
+
+        public $a;
+
+        public function __construct(InterfaceA $paramA) {
+            $this->a = $a;
+        }
+    }
+
+    $ioc = Bootstrap::ioc();
+    $a1 = new ClassA();
+    $a2 = new ClassA();
+    $ioc->register($a1,"id1");
+    $ioc->register($a2,"id2");
+
+    $ioc->register(ClassB::class,null,["paramA"=>"id2"]);
+
+    $b = $ioc->get(InterfaceB::class);
+    echo($a2 === $b->a); // true
+```
 
 ### Resolving non-resolvable parameters
 WebX IOC recursively resolves all registered dependent interfaces upon object creation. Other dependencies must be resolved externally.
