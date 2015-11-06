@@ -219,7 +219,8 @@ of the named instance to be resolved.
 
     $allCountries = $ioc->get(ICountry::class);
 
-    // Returns an array with two country instances configured with different currencies
+    // Returns an array with two country instances
+    // configured with different currencies
 
 ```
 
