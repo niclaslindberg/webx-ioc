@@ -111,7 +111,7 @@ The container supports registration of already existing instances to be resolved
 ```
 
 ### Resolving non-resolvable parameters
-WebX IOC recursively resolves all registered dependent interfaces upon object creation. Other dependencies must be resolved externally.
+WebX/Ioc recursively tries to resolve all dependent interfaces upon object creation. Other dependencies must be resolved externally.
 #### Example 1
 ```php
     class ClassA implements InterfaceA {
@@ -153,7 +153,7 @@ WebX IOC recursively resolves all registered dependent interfaces upon object cr
 
 ```
 #### Example 2
-Example of creating a settings file to satisfy parameter dependencies
+Creating a settings file to resolve parameters
 The `user`, `password` and `dbaname` are the names of the constructor parameters of `\mysqli`
 ```json
 {
@@ -191,7 +191,7 @@ settings.json
 ```
 Construct parameters for the \mysqli client is provided by a JSON settings file.
 
-#### Example 3 - External resolving parameters for a named instance
+#### Example 3 - Resolving parameters by using the id of a named instance
 The resolver function may take a second argument `id` that contains the id
 of the named instance to be resolved.
 
