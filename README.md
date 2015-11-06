@@ -104,6 +104,7 @@ The container supports registration of already existing instances to be resolved
     $ioc->register($a2,"id2");
 
     $ioc->register(ClassB::class,null,["paramA"=>"id2"]);
+    //Causes the constructor param 'paramA' of class 'ClassB' to use instance 'id2'
 
     $b = $ioc->get(InterfaceB::class);
     echo($a2 === $b->a); // true
@@ -189,6 +190,39 @@ settings.json
     // Instantiated ClassC with the \mysqli instance.
 ```
 Construct parameters for the \mysqli client is provided by a JSON settings file.
+
+#### Example 3 - External resolving parameters for a named instance
+The resolver function may take a second argument `id` that contains the id
+of the named instance to be resolved.
+
+```php
+    class Country implements ICountry {
+        public $currency;
+        public function __construct($currency) {
+            $this->currency = $currencyl;
+        }
+    }
+
+    $resolver = function(\ReflectionParameter $param,$id) use ($config) {
+        if($id==='us') {
+            return 'USD';
+        } else if ($id==='se') {
+            return 'SEK';
+        }
+    };
+
+    $ioc = Bootstrap::ioc($resolver);
+    $ioc->register(Currency::class,"se");
+    $ioc->register(Currency::class,"us");
+
+    $allCountries = $ioc->get(ICountry::class);
+
+    // Returns an array with two country instances configured with different currencies
+
+```
+
+
+
 ### Utilities
 * ```WebX\Ioc\Util\Bootstrap``` Simple, easy to use bootstrapper for a single shared instance of Ioc.
 
