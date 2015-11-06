@@ -27,8 +27,8 @@ To get started the IOC container must be initialized and implementations must be
 
     $a = $ioc->get(InterfaceA::class);
     // objectA - instance of classA (implements InterfaceA).
-    $2 = $ioc->get(InterfaceA::class);
-    // Same instance is returned each time.
+    $a2 = $ioc->get(InterfaceA::class);
+    // Same instance is returned.
     echo($a===$a2); // true
 ```
 
