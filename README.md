@@ -111,7 +111,27 @@ The container supports registration of already existing instances to be resolved
     $b = $ioc->get(InterfaceB::class);
     echo($a2 === $b->a); // true
 ```
+#### Registering a an instance with a constructor parameter
+```php
+    class ClassA implements InterfaceA {
 
+        public $someVar;
+        public $b;
+
+        public function __construct($someVar,InterfaceB $b) {
+            $this->someVar = $someVar;
+            $this->b = $b;
+        }
+
+    }
+
+    $ioc = Bootstrap::ioc();
+    $ioc->register(ClassA::class,null,null,["someVar"=>"someValue"]);
+    $ioc->register(ClassB::class);
+
+    $a = $ioc->get(InterfaceA::class);
+    echo($a->someVar); // "someValue"
+```
 ### Resolving non-resolvable parameters
 WebX/Ioc recursively tries to resolve all dependent interfaces upon object creation. Other dependencies must be resolved externally.
 #### Example 1
@@ -214,8 +234,8 @@ of the named instance to be resolved.
     };
 
     $ioc = Bootstrap::ioc($resolver);
-    $ioc->register(Currency::class,"se");
-    $ioc->register(Currency::class,"us");
+    $ioc->register(Country::class,"se");
+    $ioc->register(Country::class,"us");
 
     $allCountries = $ioc->get(ICountry::class);
 

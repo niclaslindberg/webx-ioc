@@ -10,6 +10,7 @@ class IocImpl implements Ioc {
     private $pointersByInterface = array();
     private $instancesByInterface = array();
     private $mappingsList = array();
+    private $parametersList = array();
     private $defsList = array();
     private $resolver;
 
@@ -25,12 +26,13 @@ class IocImpl implements Ioc {
         $this->resolver = $unknownResolver;
     }
 
-    public function register($classNameOrObject, $id = null, array $mapping = null) {
+    public function register($classNameOrObject, $id = null, array $mapping = null, array $parameters = null) {
         try {
             $refClass = new \ReflectionClass($classNameOrObject);
             if ($refClass->isInstantiable()) {
                 $pointer = array_push($this->defsList, $classNameOrObject)-1;
                 $this->mappingsList[] = $mapping;
+                $this->parametersList[] = $parameters;
                 foreach ($refClass->getInterfaces() as $refInterface) {
                     $interface = $refInterface->getName();
                     if($id) {
@@ -77,15 +79,15 @@ class IocImpl implements Ioc {
                                 $mappingName = isset($this->mappingsList[$pointer][$paramName]) ? $this->mappingsList[$pointer][$paramName] : null;
                                 if (($paramRefClass = $p->getClass()) && $paramRefClass->isInterface() && ($resolvedInstances = $this->resolveInstances($paramRefClass->getName(),$mappingName))) {
                                     $arguments[] = $resolvedInstances[0];
+                                } else if (null !== ($value = isset($this->parametersList[$pointer][$paramName]) ? $this->parametersList[$pointer][$paramName] : null)) {
+                                    $arguments[] = $value;
+                                } else if ($this->resolver && (NULL !== ($instance = call_user_func_array($this->resolver,[$p,$id])))) {
+                                    $arguments[] = $instance;
                                 } else {
-                                    if ($this->resolver && (NULL !== ($instance = call_user_func_array($this->resolver,[$p,$id])))) {
-                                        $arguments[] = $instance;
+                                    if($p->isDefaultValueAvailable()) {
+                                        $arguments[] = $p->getDefaultValue();
                                     } else {
-                                        if($p->isDefaultValueAvailable()) {
-                                            $arguments[] = $p->getDefaultValue();
-                                        } else {
-                                            throw new IocException(sprintf("Unresolved parameter '%s' in '%s' without default value",$p->getName(),$refClass->getName()));
-                                        }
+                                        throw new IocException(sprintf("Unresolved parameter '%s' in '%s' without default value",$p->getName(),$refClass->getName()));
                                     }
                                 }
                             }
