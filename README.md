@@ -203,7 +203,7 @@ of the named instance to be resolved.
         }
     }
 
-    $resolver = function(\ReflectionParameter $param,$id) use ($config) {
+    $resolver = function(\ReflectionParameter $param,$id) {
         if($id==='us') {
             return 'USD';
         } else if ($id==='se') {
