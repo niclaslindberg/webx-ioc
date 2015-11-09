@@ -2,6 +2,7 @@
 
 namespace WebX\Ioc\Util;
 use WebX\Ioc\Impl\IocImpl;
+use WebX\Ioc\Ioc;
 
 /**
  * Class with static accessor method get a hold a single IOC instance.
@@ -21,17 +22,19 @@ final class Bootstrap {
      * </code>
      * @param \Closure|null $resolver
      * @throws \WebX\Ioc\IocException
+     * @return Ioc
      */
     public static function init(\Closure $resolver = null) {
         $ico = new IocImpl($resolver);
         $ico->register($ico);
         self::$ico = $ico;
+        return $ico;
     }
 
     /**
      * Accessor method to get a hold of the Ioc instance.
      * If the Bootstrap has not been initalized by a call to init() this method automatically initializes a container without a resolver function.
-     * @return mixed
+     * @return Ioc
      */
     public static function ioc() {
         if(!self::$ico) {

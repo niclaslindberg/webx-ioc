@@ -183,7 +183,8 @@ WebX/Ioc recursively tries to resolve all dependent interfaces upon object creat
         }
     };
 
-    $iocWithResolver = Bootstrap::ioc($resolver);
+    Bootstrap::init($resolver);
+    $iocWithResolver = Bootstrap::ioc();
     $iocWithResolver->register(ClassA::class);
     $iocWithResolver->register(ClassB::class);
     $a = $iocWithResolver->get(InterfaceA::class);
@@ -229,7 +230,8 @@ settings.json
         return isset($settings[$key][$subKey]) ? $settings[$key][$subKey] : null;
     };
 
-    $ioc = Bootstrap::ioc($resolver);
+    Bootstrap::init($resolver);
+    $ioc = Bootstrap::ioc();
     $ioc->register(ClassC::class);
     $a = $ioc->get(InterfaceA::class);
     // Instantiated \mysqli with the parameters given by the the $resolver function.
@@ -259,7 +261,8 @@ of the named instance to be resolved.
         }
     };
 
-    $ioc = Bootstrap::ioc($resolver);
+    Bootstrap::init($resolver);
+    $ioc = Bootstrap::ioc();
     $ioc->register(Country::class,["id"=>"se"]);
     $ioc->register(Country::class,["id"=>"us"]);
 
