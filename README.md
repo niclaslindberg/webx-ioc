@@ -81,7 +81,7 @@ configuration array on the 'register()' function. All values are optional.
 ```php
 
     $config = [
-        "id" => (string),
+        "id" => (string)"someId",
         // Unique id (per interface type) for the registered instance.
         "mappings" => (array) [
             "constructorParam1" => (string)
