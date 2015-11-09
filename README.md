@@ -81,8 +81,8 @@ The container supports registration of already existing instances to be resolved
     class ClassA implements InterfaceA {}
 
     $ioc = Bootstrap::ioc();
-    $ioc->register($a,["id"=>"id1"]);
-    $ioc->register($a,["id"=>"id2"]);
+    $ioc->register(ClassA::class,["id"=>"id1"]);
+    $ioc->register(ClassA::class,["id"=>"id2"]);
 
     $a1 = $ioc->get(InterfaceA::class,"id1");
     $a2 = $ioc->get(InterfaceA::class,"id2");
