@@ -221,12 +221,12 @@ settings.json
         }
     }
 
-    $config = json_decode(file_get_contents("settings.json"),TRUE);
+    $settings = json_decode(file_get_contents("settings.json"),TRUE);
 
-    $resolver = function(\ReflectionParameter $param) use ($config) {
+    $resolver = function(\ReflectionParameter $param) use ($settings) {
         $key = $param->getDeclaringClass()->getShortName();
         $subKey = $param->getName();
-        return isset($config[$key][$subKey]) ? $config[$key][$subKey] : null;
+        return isset($settings[$key][$subKey]) ? $settings[$key][$subKey] : null;
     };
 
     $ioc = Bootstrap::ioc($resolver);
@@ -249,7 +249,9 @@ of the named instance to be resolved.
         }
     }
 
-    $resolver = function(\ReflectionParameter $param,$id) {
+    $resolver = function(\ReflectionParameter $param,array $config) {
+        //The $config parameter is the second parameter of register().
+        $id = $config["id"];
         if($id==='us') {
             return 'USD';
         } else if ($id==='se') {
@@ -258,8 +260,8 @@ of the named instance to be resolved.
     };
 
     $ioc = Bootstrap::ioc($resolver);
-    $ioc->register(Country::class,"se");
-    $ioc->register(Country::class,"us");
+    $ioc->register(Country::class,["id"=>"se"]);
+    $ioc->register(Country::class,["id"=>"us"]);
 
     $allCountries = $ioc->get(ICountry::class);
 
