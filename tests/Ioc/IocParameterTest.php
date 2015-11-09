@@ -15,7 +15,7 @@ class IocParameterTest extends \PHPUnit_Framework_TestCase
 
         $param = "123";
 
-        $ioc->register(UnknownVarNoDefault::class,null,null,["var"=>$param]);
+        $ioc->register(UnknownVarNoDefault::class,["parameters"=>["var"=>$param]]);
 
         $unknown = $ioc->get(IUnknownVar::class);
         $this->assertNotNull($unknown);

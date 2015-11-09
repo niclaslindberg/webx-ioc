@@ -74,13 +74,15 @@ The container supports registration of already existing instances to be resolved
     echo($a===$a2); // true
 ```
 
+### Configuring registered instances
+
 #### Registering a named instance or class
 ```php
     class ClassA implements InterfaceA {}
 
     $ioc = Bootstrap::ioc();
-    $ioc->register($a,"id1");
-    $ioc->register($a,"id2");
+    $ioc->register($a,["id"=>"id1"]);
+    $ioc->register($a,["id"=>"id2"]);
 
     $a1 = $ioc->get(InterfaceA::class,"id1");
     $a2 = $ioc->get(InterfaceA::class,"id2");
@@ -102,10 +104,10 @@ The container supports registration of already existing instances to be resolved
     $ioc = Bootstrap::ioc();
     $a1 = new ClassA();
     $a2 = new ClassA();
-    $ioc->register($a1,"id1");
-    $ioc->register($a2,"id2");
+    $ioc->register($a1,["id"=>"id1"]);
+    $ioc->register($a2,["id"=>"id2"]);
 
-    $ioc->register(ClassB::class,null,["paramA"=>"id2"]);
+    $ioc->register(ClassB::class,["mappings"=>["paramA"=>"id2"]]);
     //Causes the constructor param 'paramA' of class 'ClassB' to use instance 'id2'
 
     $b = $ioc->get(InterfaceB::class);
@@ -126,7 +128,7 @@ The container supports registration of already existing instances to be resolved
     }
 
     $ioc = Bootstrap::ioc();
-    $ioc->register(ClassA::class,null,null,["someVar"=>"someValue"]);
+    $ioc->register(ClassA::class,["parameters"=>["someVar"=>"someValue"]]);
     $ioc->register(ClassB::class);
 
     $a = $ioc->get(InterfaceA::class);

@@ -9,8 +9,7 @@ class IocImpl implements Ioc {
 
     private $pointersByInterface = array();
     private $instancesByInterface = array();
-    private $mappingsList = array();
-    private $parametersList = array();
+    private $configList = array();
     private $defsList = array();
     private $resolver;
 
@@ -26,16 +25,15 @@ class IocImpl implements Ioc {
         $this->resolver = $unknownResolver;
     }
 
-    public function register($classNameOrObject, $id = null, array $mapping = null, array $parameters = null) {
+    public function register($classNameOrObject, array $config = null) {
         try {
             $refClass = new \ReflectionClass($classNameOrObject);
             if ($refClass->isInstantiable()) {
                 $pointer = array_push($this->defsList, $classNameOrObject)-1;
-                $this->mappingsList[] = $mapping;
-                $this->parametersList[] = $parameters;
+                $this->configList[] = $config;
                 foreach ($refClass->getInterfaces() as $refInterface) {
                     $interface = $refInterface->getName();
-                    if($id) {
+                    if($id = isset($config["id"]) ? $config["id"] : null) {
                         if(!isset($this->pointersByInterface[$interface][$id])) {
                             $this->pointersByInterface[$interface][$id][] = $pointer;
                         } else {
@@ -71,17 +69,17 @@ class IocImpl implements Ioc {
             foreach($pointers as $pointer) {
                 if(is_string($def = &$this->defsList[$pointer])) {
                     $refClass = new \ReflectionClass($def);
+                    $config = isset($this->configList[$pointer]) ? $this->configList[$pointer] : null;
                     if($constructor = $refClass->getConstructor()) {
                         if ($parameters = $constructor->getParameters()) {
                             $arguments = array();
                             foreach ($parameters as $p) {
                                 $paramName = $p->getName();
-                                $mappingName = isset($this->mappingsList[$pointer][$paramName]) ? $this->mappingsList[$pointer][$paramName] : null;
-                                if (($paramRefClass = $p->getClass()) && $paramRefClass->isInterface() && ($resolvedInstances = $this->resolveInstances($paramRefClass->getName(),$mappingName))) {
+                                if (($paramRefClass = $p->getClass()) && $paramRefClass->isInterface() && ($resolvedInstances = $this->resolveInstances($paramRefClass->getName(),isset($config["mappings"][$paramName]) ? $config["mappings"][$paramName] : null))) {
                                     $arguments[] = $resolvedInstances[0];
-                                } else if (null !== ($value = isset($this->parametersList[$pointer][$paramName]) ? $this->parametersList[$pointer][$paramName] : null)) {
+                                } else if (null !== ($value = isset($config["parameters"][$paramName]) ? $config["parameters"][$paramName] : null)) {
                                     $arguments[] = $value;
-                                } else if ($this->resolver && (NULL !== ($instance = call_user_func_array($this->resolver,[$p,$id])))) {
+                                } else if ($this->resolver && (NULL !== ($instance = call_user_func_array($this->resolver,[$p,$config])))) {
                                     $arguments[] = $instance;
                                 } else {
                                     if($p->isDefaultValueAvailable()) {

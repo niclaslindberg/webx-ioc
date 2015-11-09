@@ -13,10 +13,10 @@ class IocNamedInstancesTest extends \PHPUnit_Framework_TestCase
         $a1 = new A();
         $a2 = new A();
 
-        $ioc->register($a1,"instance1");
-        $ioc->register($a2,"instance2");
+        $ioc->register($a1,["id"=>"instance1"]);
+        $ioc->register($a2,["id"=>"instance2"]);
 
-        $ioc->register(DependentA::class,null,["a"=>"instance2"]);
+        $ioc->register(DependentA::class,["mappings"=>["a"=>"instance2"]]);
 
         $dependentA = $ioc->get(IDependentA::class);
 
@@ -27,11 +27,11 @@ class IocNamedInstancesTest extends \PHPUnit_Framework_TestCase
     public function testRegisterTwoNamedClassNames() {
         $ioc = new IocImpl();
 
-        $ioc->register(A::class,"a1");
-        $ioc->register(A::class,"a2");
+        $ioc->register(A::class,["id"=>"a1"]);
+        $ioc->register(A::class,["id"=>"a2"]);
 
-        $ioc->register(DependentA::class,"d1",["a"=>"a1"]);
-        $ioc->register(DependentA::class,"d2",["a"=>"a2"]);
+        $ioc->register(DependentA::class,["id"=>"d1","mappings"=>["a"=>"a1"]]);
+        $ioc->register(DependentA::class,["id"=>"d2","mappings"=>["a"=>"a2"]]);
 
         $d1 = $ioc->get(IDependentA::class,"d1");
         $d1b = $ioc->get(IDependentA::class,"d1");
@@ -50,8 +50,8 @@ class IocNamedInstancesTest extends \PHPUnit_Framework_TestCase
     public function testRegisterTwoImplsWithCollidingIds() {
         $ioc = new IocImpl();
 
-        $ioc->register(AB::class,"instance1");
-        $ioc->register(A::class, "instance1");
+        $ioc->register(AB::class,["id"=>"instance1"]);
+        $ioc->register(A::class, ["id"=>"instance1"]);
     }
 
     public function testRegisterTwoNamedImplsFindByIdPasses() {
@@ -60,8 +60,8 @@ class IocNamedInstancesTest extends \PHPUnit_Framework_TestCase
         $a1 = new A();
         $a2 = new A();
 
-        $ioc->register($a1,"instance1");
-        $ioc->register($a2,"instance2");
+        $ioc->register($a1,["id"=>"instance1"]);
+        $ioc->register($a2,["id"=>"instance2"]);
 
         $a2b = $ioc->get(IA::class,"instance2");
 
@@ -71,15 +71,15 @@ class IocNamedInstancesTest extends \PHPUnit_Framework_TestCase
 
     public function testRegisterUnknownCallsResolverWithId() {
         $idHistory = [];
-        $resolver = function(\ReflectionParameter $param, $id) use(&$idHistory) {
-            $idHistory[] = $id;
-            return $id;
+        $resolver = function(\ReflectionParameter $param, $config) use(&$idHistory) {
+            $idHistory[] = $config["id"];
+            return $config["id"];
         };
 
         $ioc = new IocImpl($resolver);
 
-        $ioc->register(UnknownVarNoDefault::class,"i1");
-        $ioc->register(UnknownVarNoDefault::class,"i2");
+        $ioc->register(UnknownVarNoDefault::class,["id"=>"i1"]);
+        $ioc->register(UnknownVarNoDefault::class,["id"=>"i2"]);
 
         $i1 = $ioc->get(IUnknownVar::class,"i1");
         $i2 = $ioc->get(IUnknownVar::class,"i2");
