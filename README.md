@@ -75,6 +75,25 @@ The container supports registration of already existing instances to be resolved
 ```
 
 ### Configuring registered instances
+Web/Ioc allows instances to be configured. Configuration is done with the optional
+configuration array on the 'register()' function. All values are optional.
+
+```php
+
+    $config = [
+        "id" => (string), // Unique id (per interface type) for the registered instance.
+        "mappings" => (array) [
+            "constructorParam1" => (string) //Unique id1 of another registered instance
+            "constructorParamN" => (string) //Unique idN of another registered instance
+        ],
+        "parameters" => (array) [
+            "constructorParam1" => (mixed) //Any value to be bound to constructorParam1
+        ]
+    ];
+
+    $ioc->register("someClass::class",$config);
+
+```
 
 #### Registering a named instance or class
 ```php
