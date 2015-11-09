@@ -113,7 +113,7 @@ The container supports registration of already existing instances to be resolved
     $b = $ioc->get(InterfaceB::class);
     echo($a2 === $b->a); // true
 ```
-#### Registering a an instance with a constructor parameter
+#### Registering an instance with a predefined constructor parameter
 ```php
     class ClassA implements InterfaceA {
 
