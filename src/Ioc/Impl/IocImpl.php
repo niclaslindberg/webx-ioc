@@ -4,6 +4,7 @@ namespace WebX\Ioc\Impl;
 
 use WebX\Ioc\Ioc;
 use WebX\Ioc\IocException;
+use \ReflectionMethod;
 
 class IocImpl implements Ioc {
 
@@ -12,6 +13,7 @@ class IocImpl implements Ioc {
     private $configList = array();
     private $defsList = array();
     private $resolver;
+    private $proxies = array();
 
     /**
      * @param \Closure|null $unknownResolver the function to be called by the IOC when a dependent construct parameter can't be resolved from registered implementation classes.
@@ -23,6 +25,88 @@ class IocImpl implements Ioc {
      */
     public function __construct(\Closure $unknownResolver = null) {
         $this->resolver = $unknownResolver;
+    }
+
+    public function initStatic($className, $method) {
+        try {
+            $refClass = new \ReflectionClass($className);
+            if ($refClass->isInstantiable()) {
+                $refMethod = $refClass->getMethod($method);
+                if($refMethod->isStatic()) {
+                    if ($parameters = $refMethod->getParameters()) {
+                        $arguments = array();
+                        foreach ($parameters as $p) {
+                            if ($paramRefClass = $p->getClass()) {
+                                $proxyClassName = $paramRefClass->getShortName() . "Proxy";
+                                if ($existingProxy = isset($this->proxies[$proxyClassName]) ? $this->proxies[$proxyClassName] : null) {
+                                    $arguments[] = $existingProxy;
+                                } else if ($paramRefClass->isInterface()) {
+                                    if (!class_exists($proxyClassName)) {
+                                        $classDefParts = [];
+                                        $classDefParts[] = sprintf('class %s implements \\%s {', $proxyClassName, $paramRefClass->getName());
+                                        $classDefParts[] = sprintf('private $ioc;');
+                                        $classDefParts[] = sprintf('private $realObject;');
+                                        $classDefParts[] = sprintf('public function __construct($ioc) {');
+                                        $classDefParts[] = sprintf('$this->ioc = $ioc;');
+                                        $classDefParts[] = sprintf('}');
+
+                                        foreach ($paramRefClass->getMethods(ReflectionMethod::IS_PUBLIC) as $interfaceMethod) {
+                                            $methodParts = [];
+                                            $methodParts[] = sprintf("public function %s(", $interfaceMethod->getShortName());
+                                            $methodParamDeclarations = [];
+                                            $methodParamNames = [];
+                                            foreach ($interfaceMethod->getParameters() as $imParam) {
+                                                $methodParamName = '$' . $imParam->getName();
+                                                $methodParamNames[] = $methodParamName;
+                                                if ($imParamClass = $imParam->getClass()) {
+                                                    if ($imParamClass->isInterface()) {
+                                                        $methodParamDeclarations[] = sprintf("%s %s", $imParamClass->getName(), $methodParamName);
+                                                    } else {
+                                                        throw new IocException("Static initilization does not allow classes");
+                                                    }
+                                                } else {
+                                                    $methodParamDeclarations[] = $methodParamName;
+                                                }
+                                            }
+                                            $methodParts[] = sprintf('%s) {', implode(",", $methodParamDeclarations));
+                                            $methodParts[] = sprintf('if (!$this->realObject) {');
+                                            $methodParts[] = sprintf('$this->realObject = $this->ioc->get(\'%s\');', $paramRefClass->getName());
+                                            $methodParts[] = sprintf('}');
+                                            $methodParts[] = sprintf('return $this->realObject->%s(%s);', $interfaceMethod->getName(), implode(",", $methodParamNames));
+                                            $methodParts[] = "}";
+                                            $classDefParts[] = implode("\n", $methodParts);
+                                        }
+                                        $classDefParts[] = "}";
+                                        $classDef = implode("\n", $classDefParts);
+                                        eval($classDef);
+                                    }
+                                    $proxy = new $proxyClassName($this);
+                                    $this->proxies[$proxyClassName] = $proxy;
+                                    $arguments[] = $proxy;
+                                } else {
+                                    throw new IocException("{$className}::{$method} can resolve {$p->getName()} is not an interface.");
+                                }
+                            } else {
+                                if ($p->isDefaultValueAvailable()) {
+                                    $arguments[] = $p->getDefaultValue();
+                                } else {
+                                    $arguments[] = null;
+                                }
+                            }
+                        }
+                        $refMethod->invokeArgs(null,$arguments);
+                    } else {
+                        $refMethod->invoke(null);
+                    }
+                } else {
+                    throw new IocException("The method {$className}::{$method} is not static");
+                }
+            } else {
+                throw new IocException("Can't register an non-instantiable class. Hint: Register a concrete class name or an instance of a class.");
+            }
+        } catch(\ReflectionException $e) {
+            throw new IocException(sprintf($e->getMessage(),$e));
+        }
     }
 
     public function register($classNameOrObject, array $config = null) {

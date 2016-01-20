@@ -14,7 +14,7 @@ class A implements IA
 
     public function doA()
     {
-        // TODO: Implement doA() method.
+        return "A";
     }
 
 }
