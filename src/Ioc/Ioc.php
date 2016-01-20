@@ -31,6 +31,7 @@ interface Ioc {
     public function register($classNameOrObject, array $config = null);
 
     /**
+     * Initializes a
      * @param $className the className of the class to be statically initialized
      * @param $method the name of the static method to be called
      * @return void
