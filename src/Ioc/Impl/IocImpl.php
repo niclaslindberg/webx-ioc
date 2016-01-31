@@ -13,7 +13,7 @@ class IocImpl implements Ioc {
     private $configList = array();
     private $defsList = array();
     private $resolver;
-    private $proxies = array();
+    private $proxyFactory;
 
     /**
      * @param \Closure|null $unknownResolver the function to be called by the IOC when a dependent construct parameter can't be resolved from registered implementation classes.
@@ -28,6 +28,9 @@ class IocImpl implements Ioc {
     }
 
     public function initStatic($className, $method) {
+        if(!$this->proxyFactory) {
+            $this->proxyFactory = new ProxyFactory($this);
+        }
         try {
             $refClass = new \ReflectionClass($className);
             $refMethod = $refClass->getMethod($method);
@@ -36,55 +39,7 @@ class IocImpl implements Ioc {
                     $arguments = array();
                     foreach ($parameters as $p) {
                         if ($paramRefClass = $p->getClass()) {
-                            $proxyClassName = $paramRefClass->getShortName() . "Proxy";
-                            if ($existingProxy = isset($this->proxies[$proxyClassName]) ? $this->proxies[$proxyClassName] : null) {
-                                $arguments[] = $existingProxy;
-                            } else if ($paramRefClass->isInterface()) {
-                                if (!class_exists($proxyClassName)) {
-                                    $classDefParts = [];
-                                    $classDefParts[] = sprintf('class %s implements \\%s {', $proxyClassName, $paramRefClass->getName());
-                                    $classDefParts[] = sprintf('private $ioc;');
-                                    $classDefParts[] = sprintf('private $realObject;');
-                                    $classDefParts[] = sprintf('public function __construct($ioc) {');
-                                    $classDefParts[] = sprintf('$this->ioc = $ioc;');
-                                    $classDefParts[] = sprintf('}');
-
-                                    foreach ($paramRefClass->getMethods(ReflectionMethod::IS_PUBLIC) as $interfaceMethod) {
-                                        $methodParts = [];
-                                        $methodParts[] = sprintf("public function %s(", $interfaceMethod->getShortName());
-                                        $methodParamDeclarations = [];
-                                        $methodParamNames = [];
-                                        foreach ($interfaceMethod->getParameters() as $imParam) {
-                                            $methodParamName = '$' . $imParam->getName();
-                                            $methodParamNames[] = $methodParamName;
-                                            if ($imParamClass = $imParam->getClass()) {
-                                                if ($imParamClass->isInterface()) {
-                                                    $methodParamDeclarations[] = sprintf("%s %s", $imParamClass->getName(), $methodParamName);
-                                                } else {
-                                                    throw new IocException("Static initilization does not allow classes");
-                                                }
-                                            } else {
-                                                $methodParamDeclarations[] = $methodParamName;
-                                            }
-                                        }
-                                        $methodParts[] = sprintf('%s) {', implode(",", $methodParamDeclarations));
-                                        $methodParts[] = sprintf('if (!$this->realObject) {');
-                                        $methodParts[] = sprintf('$this->realObject = $this->ioc->get(\'%s\');', $paramRefClass->getName());
-                                        $methodParts[] = sprintf('}');
-                                        $methodParts[] = sprintf('return $this->realObject->%s(%s);', $interfaceMethod->getName(), implode(",", $methodParamNames));
-                                        $methodParts[] = "}";
-                                        $classDefParts[] = implode("\n", $methodParts);
-                                    }
-                                    $classDefParts[] = "}";
-                                    $classDef = implode("\n", $classDefParts);
-                                    eval($classDef);
-                                }
-                                $proxy = new $proxyClassName($this);
-                                $this->proxies[$proxyClassName] = $proxy;
-                                $arguments[] = $proxy;
-                            } else {
-                                throw new IocException("{$className}::{$method} can resolve {$p->getName()} is not an interface.");
-                            }
+                            $arguments[] = $this->proxyFactory->createProxy($paramRefClass);
                         } else {
                             if ($p->isDefaultValueAvailable()) {
                                 $arguments[] = $p->getDefaultValue();
@@ -139,6 +94,10 @@ class IocImpl implements Ioc {
 
     public function getAll($interfaceName) {
         return $this->resolveInstances($interfaceName) ?: [];
+    }
+
+    private function resolveMethodParameters(\ReflectionFunctionAbstract $method, \Closure $resolver) {
+
     }
 
     private function resolveInstances($interfaceName,$id = null) {
