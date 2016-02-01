@@ -156,6 +156,38 @@ configuration array on the 'register()' function. All values are optional.
     $a = $ioc->get(InterfaceA::class);
     echo($a->someVar); // "someValue"
 ```
+#### Statically initialize a class
+```php
+
+
+
+    class ClassA implements InterfaceA {
+
+        public static $b;
+
+        public function __construct() {}
+
+        public static function init(InterfaceB $b) {
+            self::$b = $b;
+        }
+    }
+
+    class ClassB implements InterfaceB {
+        public function saySomething() {
+            return "Hello";
+        }
+    }
+
+    $ioc = Bootstrap::ioc();
+    $ioc->register(ClassA::class);
+    $ioc->register(ClassB::class);
+    $ioc->initStatic(ClassB, "init");
+
+    $a = $ioc->get(InterfaceA::class);
+    echo($a::$b->saySomething()); // "Hello"
+```
+
+
 ### Resolving non-resolvable parameters
 WebX/Ioc recursively tries to resolve all dependent interfaces upon object creation. Other dependencies must be resolved externally.
 #### Example 1

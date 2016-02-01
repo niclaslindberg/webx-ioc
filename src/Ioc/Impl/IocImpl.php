@@ -87,7 +87,7 @@ class IocImpl implements Ioc {
 
     public function get($interfaceName,$id=null) {
         if(($instances = $this->resolveInstances($interfaceName,$id))) {
-            return $instances[0];
+            return array_pop($instances);
         }
         throw new IocException(sprintf("Could not resolve any implementations for {$interfaceName}:[%s]", $id ?: "default"));
     }
@@ -101,45 +101,49 @@ class IocImpl implements Ioc {
     }
 
     private function resolveInstances($interfaceName,$id = null) {
-        if(NULL !== ($instances = isset($this->instancesByInterface[$interfaceName][$id]) ? $this->instancesByInterface[$interfaceName][$id] : null)) {
-            return $instances;
-        } else if (NULL !== ($pointers = isset($this->pointersByInterface[$interfaceName][$id]) ? $this->pointersByInterface[$interfaceName][$id] : null)) {
-            $instances = [];
-            foreach($pointers as $pointer) {
-                if(is_string($def = &$this->defsList[$pointer])) {
-                    $refClass = new \ReflectionClass($def);
-                    $config = isset($this->configList[$pointer]) ? $this->configList[$pointer] : null;
-                    if($constructor = $refClass->getConstructor()) {
-                        if ($parameters = $constructor->getParameters()) {
-                            $arguments = array();
-                            foreach ($parameters as $p) {
-                                $paramName = $p->getName();
-                                if (($paramRefClass = $p->getClass()) && $paramRefClass->isInterface() && ($resolvedInstances = $this->resolveInstances($paramRefClass->getName(),isset($config["mappings"][$paramName]) ? $config["mappings"][$paramName] : null))) {
-                                    $arguments[] = $resolvedInstances[0];
-                                } else if (null !== ($value = isset($config["parameters"][$paramName]) ? $config["parameters"][$paramName] : null)) {
-                                    $arguments[] = $value;
-                                } else if ($this->resolver && (NULL !== ($instance = call_user_func_array($this->resolver,[$p,$config])))) {
-                                    $arguments[] = $instance;
-                                } else {
-                                    if($p->isDefaultValueAvailable()) {
-                                        $arguments[] = $p->getDefaultValue();
+        if(is_string($interfaceName)) {
+            if (NULL !== ($instances = isset($this->instancesByInterface[$interfaceName][$id]) ? $this->instancesByInterface[$interfaceName][$id] : null)) {
+                return $instances;
+            } else if (NULL !== ($pointers = isset($this->pointersByInterface[$interfaceName][$id]) ? $this->pointersByInterface[$interfaceName][$id] : null)) {
+                $instances = [];
+                foreach ($pointers as $pointer) {
+                    if (is_string($def = &$this->defsList[$pointer])) {
+                        $refClass = new \ReflectionClass($def);
+                        $config = isset($this->configList[$pointer]) ? $this->configList[$pointer] : null;
+                        if ($constructor = $refClass->getConstructor()) {
+                            if ($parameters = $constructor->getParameters()) {
+                                $arguments = array();
+                                foreach ($parameters as $p) {
+                                    $paramName = $p->getName();
+                                    if (($paramRefClass = $p->getClass()) && $paramRefClass->isInterface() && ($resolvedInstances = $this->resolveInstances($paramRefClass->getName(), isset($config["mappings"][$paramName]) ? $config["mappings"][$paramName] : null))) {
+                                        $arguments[] = $resolvedInstances[0];
+                                    } else if (null !== ($value = isset($config["parameters"][$paramName]) ? $config["parameters"][$paramName] : null)) {
+                                        $arguments[] = $value;
+                                    } else if ($this->resolver && (NULL !== ($instance = call_user_func_array($this->resolver, [$p, $config])))) {
+                                        $arguments[] = $instance;
                                     } else {
-                                        throw new IocException(sprintf("Unresolved parameter '%s' in '%s' without default value",$p->getName(),$refClass->getName()));
+                                        if ($p->isDefaultValueAvailable()) {
+                                            $arguments[] = $p->getDefaultValue();
+                                        } else {
+                                            throw new IocException(sprintf("Unresolved parameter '%s' in '%s' without default value", $p->getName(), $refClass->getName()));
+                                        }
                                     }
                                 }
+                                $def = $refClass->newInstanceArgs($arguments);
+                            } else {
+                                $def = $refClass->newInstanceArgs();
                             }
-                            $def = $refClass->newInstanceArgs($arguments);
                         } else {
-                            $def = $refClass->newInstanceArgs();
+                            $def = $refClass->newInstanceWithoutConstructor();
                         }
-                    } else {
-                        $def = $refClass->newInstanceWithoutConstructor();
                     }
+                    $instances[] = $def;
                 }
-                $instances[] = $def;
+                $this->instancesByInterface[$interfaceName][$id] = $instances;
+                return $instances;
             }
-            $this->instancesByInterface[$interfaceName][$id] = $instances;
-            return $instances;
+        } else {
+            throw new IocException("Interface name must be passed as a string");
         }
     }
 }
