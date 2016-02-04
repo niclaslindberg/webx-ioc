@@ -20,5 +20,5 @@ class IocTraverseTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($a_1,$a_11);
     }
 
-   
+
 }

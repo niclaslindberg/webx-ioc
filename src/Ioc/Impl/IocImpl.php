@@ -5,6 +5,7 @@ namespace WebX\Ioc\Impl;
 use WebX\Ioc\Ioc;
 use WebX\Ioc\IocException;
 use \ReflectionMethod;
+use WebX\Ioc\IocNonResolvableException;
 
 class IocImpl implements Ioc {
 
@@ -66,9 +67,10 @@ class IocImpl implements Ioc {
             if ($refClass->isInstantiable()) {
                 $pointer = array_push($this->defsList, $classNameOrObject)-1;
                 $this->configList[] = $config;
+                $id = isset($config["id"]) ? $config["id"] : null;
                 foreach ($refClass->getInterfaces() as $refInterface) {
                     $interface = $refInterface->getName();
-                    if($id = isset($config["id"]) ? $config["id"] : null) {
+                    if($id) {
                         if(!isset($this->pointersByInterface[$interface][$id])) {
                             $this->pointersByInterface[$interface][$id][] = $pointer;
                         } else {
@@ -89,15 +91,11 @@ class IocImpl implements Ioc {
         if(($instances = $this->resolveInstances($interfaceName,$id))) {
             return array_pop($instances);
         }
-        throw new IocException(sprintf("Could not resolve any implementations for {$interfaceName}:[%s]", $id ?: "default"));
+        throw new IocNonResolvableException($interfaceName,$id);
     }
 
     public function getAll($interfaceName) {
         return $this->resolveInstances($interfaceName) ?: [];
-    }
-
-    private function resolveMethodParameters(\ReflectionFunctionAbstract $method, \Closure $resolver) {
-
     }
 
     private function resolveInstances($interfaceName,$id = null) {
