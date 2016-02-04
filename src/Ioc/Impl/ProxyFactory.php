@@ -48,7 +48,15 @@ class ProxyFactory {
                                     throw new IocException("Static initilization does not allow classes");
                                 }
                             } else {
-                                $methodParamDeclarations[] = $methodParamName;
+                                $declaration = [];
+                                if($imParam->isArray()) {
+                                    $declaration[] = "array ";
+                                }
+                                $declaration[] = $methodParamName;
+                                if($imParam->isDefaultValueAvailable()) {
+                                    $declaration[] = "=" . ($imParam->getDefaultValue()===null ? "null" : $imParam->getDefaultValue());
+                                }
+                                $methodParamDeclarations[] = implode("",$declaration);
                             }
                         }
                         $methodParts[] = sprintf('%s) {', implode(",", $methodParamDeclarations));
