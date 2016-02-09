@@ -38,4 +38,11 @@ class IocStaticRegisterTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals("A",$res);
     }
 
+    public function testStaticRegisterWithClosures_Pass() {
+        $ioc = new IocImpl();
+        $ioc->initStatic(CStatic::class,"initWithClosure");
+
+        $this->assertNotNull(CStatic::$withClosure);
+    }
+
 }

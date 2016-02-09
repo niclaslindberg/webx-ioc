@@ -41,23 +41,19 @@ class ProxyFactory {
                         foreach ($interfaceMethod->getParameters() as $imParam) {
                             $methodParamName = '$' . $imParam->getName();
                             $methodParamNames[] = $methodParamName;
+                            $declaration = [];
                             if ($imParamClass = $imParam->getClass()) {
-                                if ($imParamClass->isInterface()) {
-                                    $methodParamDeclarations[] = sprintf("%s %s", $imParamClass->getName(), $methodParamName);
-                                } else {
-                                    throw new IocException("Static initilization does not allow classes");
-                                }
+                                $declaration[] = sprintf("%s %s", $imParamClass->getName(), $methodParamName);
                             } else {
-                                $declaration = [];
-                                if($imParam->isArray()) {
+                                if ($imParam->isArray()) {
                                     $declaration[] = "array ";
                                 }
                                 $declaration[] = $methodParamName;
-                                if($imParam->isDefaultValueAvailable()) {
-                                    $declaration[] = "=" . ($imParam->getDefaultValue()===null ? "null" : $imParam->getDefaultValue());
-                                }
-                                $methodParamDeclarations[] = implode("",$declaration);
                             }
+                            if($imParam->isDefaultValueAvailable()) {
+                                $declaration[] = "=" . ($imParam->getDefaultValue()===null ? "null" : $imParam->getDefaultValue());
+                            }
+                            $methodParamDeclarations[] = implode("",$declaration);
                         }
                         $methodParts[] = sprintf('%s) {', implode(",", $methodParamDeclarations));
                         $methodParts[] = sprintf('if (!$this->realObject) {');

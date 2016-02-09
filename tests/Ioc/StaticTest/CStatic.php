@@ -3,6 +3,7 @@
 
 namespace WebX\Ioc\StaticTest;
 
+use InterfaceWithStaticMethod;
 use WebX\Ioc\IA;
 use WebX\Ioc\ToStringTrait;
 use WebX\Ioc\IC;
@@ -23,6 +24,8 @@ class CStatic
      */
     public static $a;
 
+    public static $withClosure;
+
 
     public static function setC(IC $c) {
         self::$c = $c;
@@ -31,6 +34,10 @@ class CStatic
     public static function initAB(IC $c, IA $a) {
         self::$c = $c;
         self::$a = $a;
+    }
+
+    public static function initWithClosure(IWithClosure $withClosure) {
+        self::$withClosure = $withClosure;
     }
 
     public function executeDoA() {
