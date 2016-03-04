@@ -46,6 +46,7 @@ interface Ioc {
      * Returns an object (first if multiple) that implements the interface.
      * @param string $interfaceName
      * @param string|null $id the name of the instance to resolve.
+     * @param int $resolutionOrder return first or last instance when multiple occurances of an interface
      * @return object
      * @throws IocException if no instance that implements the interface can be found.
      */
