@@ -87,9 +87,9 @@ class IocImpl implements Ioc {
         }
     }
 
-    public function get($interfaceName,$id=null) {
+    public function get($interfaceName, $id = null, $resolutionOrder = Ioc::RESOLUTION_ORDER_LAST) {
         if(($instances = $this->resolveInstances($interfaceName,$id))) {
-            return array_pop($instances);
+            return $resolutionOrder===IOC::RESOLUTION_ORDER_LAST ? array_pop($instances) : array_shift($instances);
         }
         throw new IocNonResolvableException($interfaceName,$id);
     }

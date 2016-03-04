@@ -8,6 +8,9 @@ namespace WebX\Ioc;
  */
 interface Ioc {
 
+    const RESOLUTION_ORDER_FIRST = 0;
+    const RESOLUTION_ORDER_LAST = 1;
+
     /**
      * Registers a className or instance as implementation for all its interfaces with the container.
      * @param string|object $classNameOrObject
@@ -46,7 +49,7 @@ interface Ioc {
      * @return object
      * @throws IocException if no instance that implements the interface can be found.
      */
-    public function get($interfaceName, $id = null);
+    public function get($interfaceName, $id = null, $resolutionOrder = Ioc::RESOLUTION_ORDER_LAST);
 
     /**
      * Returns all objects that implement the interface.
