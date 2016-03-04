@@ -18,7 +18,7 @@ class IocNonResolvableException extends IocException {
     private $interfaceName;
 
     public function __construct($interfaceName, $id=null) {
-        parent::__construct(sprintf("Could not resolve '%' [id=%s]",$interfaceName,$id));
+        parent::__construct(sprintf("Could not resolve '%s' (id=%s)",$interfaceName,$id));
     }
 
     /**

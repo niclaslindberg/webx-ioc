@@ -6,7 +6,8 @@ namespace WebX\Ioc;
  * Interface Ioc
  * @package WebX\Ioc
  */
-interface Ioc {
+interface Ioc
+{
 
     const RESOLUTION_ORDER_FIRST = 0;
     const RESOLUTION_ORDER_LAST = 1;
@@ -39,7 +40,7 @@ interface Ioc {
      * @param $method the name of the static method to be called
      * @return void
      */
-    public function initStatic($className,$method);
+    public function initStatic($className, $method);
 
 
     /**
@@ -59,4 +60,12 @@ interface Ioc {
      */
     public function getAll($interfaceName);
 
+
+    /**
+     * Instantiates a given class and injects constructor dependencies
+     * @param $className the concreate class to be instantiated
+     * @param array|null $config (Same as in register)
+     * @return mixed
+     */
+    public function instantiate($className, array $config = null);
 }

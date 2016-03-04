@@ -2,6 +2,7 @@
 
 namespace WebX\Ioc\Impl;
 
+use ReflectionClass;
 use WebX\Ioc\Ioc;
 use WebX\Ioc\IocException;
 use \ReflectionMethod;
@@ -33,7 +34,7 @@ class IocImpl implements Ioc {
             $this->proxyFactory = new ProxyFactory($this);
         }
         try {
-            $refClass = new \ReflectionClass($className);
+            $refClass = new ReflectionClass($className);
             $refMethod = $refClass->getMethod($method);
             if($refMethod->isStatic()) {
                 if ($parameters = $refMethod->getParameters()) {
@@ -63,7 +64,7 @@ class IocImpl implements Ioc {
 
     public function register($classNameOrObject, array $config = null) {
         try {
-            $refClass = new \ReflectionClass($classNameOrObject);
+            $refClass = new ReflectionClass($classNameOrObject);
             if ($refClass->isInstantiable()) {
                 $pointer = array_push($this->defsList, $classNameOrObject)-1;
                 $this->configList[] = $config;
@@ -106,34 +107,8 @@ class IocImpl implements Ioc {
                 $instances = [];
                 foreach ($pointers as $pointer) {
                     if (is_string($def = &$this->defsList[$pointer])) {
-                        $refClass = new \ReflectionClass($def);
                         $config = isset($this->configList[$pointer]) ? $this->configList[$pointer] : null;
-                        if ($constructor = $refClass->getConstructor()) {
-                            if ($parameters = $constructor->getParameters()) {
-                                $arguments = array();
-                                foreach ($parameters as $p) {
-                                    $paramName = $p->getName();
-                                    if (($paramRefClass = $p->getClass()) && $paramRefClass->isInterface() && ($resolvedInstances = $this->resolveInstances($paramRefClass->getName(), isset($config["mappings"][$paramName]) ? $config["mappings"][$paramName] : null))) {
-                                        $arguments[] = $resolvedInstances[0];
-                                    } else if (null !== ($value = isset($config["parameters"][$paramName]) ? $config["parameters"][$paramName] : null)) {
-                                        $arguments[] = $value;
-                                    } else if ($this->resolver && (NULL !== ($instance = call_user_func_array($this->resolver, [$p, $config])))) {
-                                        $arguments[] = $instance;
-                                    } else {
-                                        if ($p->isDefaultValueAvailable()) {
-                                            $arguments[] = $p->getDefaultValue();
-                                        } else {
-                                            throw new IocException(sprintf("Unresolved parameter '%s' in '%s' without default value", $p->getName(), $refClass->getName()));
-                                        }
-                                    }
-                                }
-                                $def = $refClass->newInstanceArgs($arguments);
-                            } else {
-                                $def = $refClass->newInstanceArgs();
-                            }
-                        } else {
-                            $def = $refClass->newInstanceWithoutConstructor();
-                        }
+                        $def = $this->instantiate($def,$config);
                     }
                     $instances[] = $def;
                 }
@@ -142,6 +117,41 @@ class IocImpl implements Ioc {
             }
         } else {
             throw new IocException("Interface name must be passed as a string");
+        }
+    }
+
+    public function instantiate($className,array $config = null) {
+        $refClass = new ReflectionClass($className);
+        if ($constructor = $refClass->getConstructor()) {
+            if ($parameters = $constructor->getParameters()) {
+                $arguments = array();
+                foreach ($parameters as $p) {
+                    $paramName = $p->getName();
+                    if (($paramRefClass = $p->getClass()) && $paramRefClass->isInterface() && ($resolvedInstances = $this->resolveInstances($paramRefClass->getName(), isset($config["mappings"][$paramName]) ? $config["mappings"][$paramName] : null))) {
+                        $arguments[] = $resolvedInstances[0];
+                    } else if (null !== ($value = isset($config["parameters"][$paramName]) ? $config["parameters"][$paramName] : null)) {
+                        $arguments[] = $value;
+                    } else if ($this->resolver && (NULL !== ($resolution = call_user_func_array($this->resolver, [$p, $config])))) {
+                        if((is_string($resolution) && class_exists($resolution))) {
+                            $this->register($resolution);
+                            $arguments[] = $this->resolveInstances($paramRefClass->getName())[0];
+                        } else {
+                            $arguments[] = $resolution;
+                        }
+                    } else {
+                        if ($p->isDefaultValueAvailable()) {
+                            $arguments[] = $p->getDefaultValue();
+                        } else {
+                            throw new IocException(sprintf("Unresolved parameter '%s' in '%s' without default value", $p->getName(), $refClass->getName()));
+                        }
+                    }
+                }
+                return $refClass->newInstanceArgs($arguments);
+            } else {
+                return $refClass->newInstanceArgs();
+            }
+        } else {
+           return $refClass->newInstanceWithoutConstructor();
         }
     }
 }
