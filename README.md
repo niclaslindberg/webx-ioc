@@ -348,7 +348,7 @@ of the named instance to be resolved.
 
 
 ### Utilities
-* ```WebX\Ioc\Util\Bootstrap``` Simple, easy to use bootstrapper for a single shared instance of Ioc.
+* ```WebX\Ioc\Util\Bootstrap``` Simple, easy to use bootstrapper for a single shared instance of Ioc. Statically accessible.
 
 ### How to run tests
 In the root of the project:
