@@ -4,7 +4,7 @@ Main features and design goals of webx-ioc:
 * Support for named instances and constructor parameter mappings.
 * Simplicity.
 * Support for:
-  * resolving non-resolvable dependencies.
+  * resolving non-resolvable dependencies. Calls a user defined Closure for resolution.
   * initalizing classes with static methods.
   * registration of class names or already existing instances. Automatically scans classes/instances for implemented interfaces.
   * instantiation of non-registered classes. Invokes constructor with resolved parameters.
