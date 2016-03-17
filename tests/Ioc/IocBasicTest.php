@@ -91,4 +91,37 @@ class IocBasicTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($a,$b);
     }
 
+    public function testResolutionOrderFirstAndLastPass() {
+        $ioc = new IocImpl();
+        $a1 = new A();
+        $a2 = new A();
+        $a3 = new A();
+        $ioc->register($a1);
+        $ioc->register($a2);
+        $ioc->register($a3);
+
+        $this->assertSame($a1,$ioc->get(IA::class,null,Ioc::RESOLUTION_ORDER_FIRST));
+        $this->assertSame($a3,$ioc->get(IA::class,null,Ioc::RESOLUTION_ORDER_LAST));
+    }
+
+    public function testResolutionWithClosureReturnsClassNamePass() {
+        $ioc = new IocImpl(function(\ReflectionParameter $param, $config) {
+            return A::class;
+        });
+        $ioc->register(DependentA::class);
+
+        $dependentA = $ioc->get(IDependentA::class);
+        $this->assertNotNull($dependentA);
+        $this->assertInstanceOf(IA::class,$dependentA->getA());
+    }
+
+    public function testInstantiate() {
+        $ioc = new IocImpl();
+        $a = new A();
+        $ioc->register($a);
+
+        $dependentA = $ioc->instantiate(DependentA::class);
+        $this->assertNotNull($dependentA);
+        $this->assertSame($a,$dependentA->getA());
+    }
 }

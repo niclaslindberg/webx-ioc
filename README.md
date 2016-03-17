@@ -172,6 +172,10 @@ configuration array on the 'register()' function. All values are optional.
         public static function init(InterfaceB $b) {
             self::$b = $b;
         }
+
+        public function sayWhat() {
+            return self::$b->saySomething();
+        }
     }
 
     class ClassB implements InterfaceB {
@@ -186,7 +190,7 @@ configuration array on the 'register()' function. All values are optional.
     $ioc->initStatic(ClassB, "init");
 
     $a = $ioc->get(InterfaceA::class);
-    echo($a::$b->saySomething()); // "Hello"
+    echo($a->sayWhat()); // "Hello"
 ```
 
 
