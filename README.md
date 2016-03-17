@@ -6,7 +6,6 @@ Main features and design goals of webx-ioc:
 * Support for resolving non-resolvable dependencies.
 * Support for initalizing classes with static methods.
 * Automatically scans classes for implemented interfaces.
-* Easy to integrate with any framework / application.
 * Very fast & light weight (< 200 lines, lazy initialization, resolution cache, dynamic proxies etc).
 * No external dependencies.
 
