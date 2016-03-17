@@ -185,7 +185,7 @@ configuration array on the 'register()' function. All values are optional.
     }
 
     $ioc = Bootstrap::ioc();
-    $ioc->initStatic(ClassA::class, "init"); //Proxies the not-yet existing instance of InterfaceB
+    $ioc->initStatic(ClassA::class, "init"); //Proxies the not-yet existing instance of ClassB
     $ioc->register(ClassA::class);
     $ioc->register(ClassB::class);
 
