@@ -185,9 +185,9 @@ configuration array on the 'register()' function. All values are optional.
     }
 
     $ioc = Bootstrap::ioc();
+    $ioc->initStatic(ClassA::class, "init");
     $ioc->register(ClassA::class);
     $ioc->register(ClassB::class);
-    $ioc->initStatic(ClassB, "init");
 
     $a = $ioc->get(InterfaceA::class);
     echo($a->sayWhat()); // "Hello"
