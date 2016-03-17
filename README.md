@@ -3,9 +3,11 @@ Main features and design goals of webx-ioc:
 * Resolve instance(single) and array of instances(list) of an interface.
 * Support for named instances and constructor parameter mappings.
 * Simplicity.
-* Support for resolving non-resolvable dependencies.
-* Support for initalizing classes with static methods.
-* Automatically scans classes for implemented interfaces.
+* Support for:
+ ** resolving non-resolvable dependencies.
+ ** initalizing classes with static methods.
+ ** registration of class names or already existing instances. Automatically scans classes/instances for implemented interfaces.
+ ** instantiation of non-registered classes. Invokes constructor with resolved parameters.
 * Very fast & light weight (< 200 lines, lazy initialization, resolution cache, dynamic proxies etc).
 * No external dependencies.
 
@@ -192,6 +194,39 @@ configuration array on the 'register()' function. All values are optional.
     echo($a->sayWhat()); // "Hello"
 ```
 
+#### Instantiate a non-registered class
+If you want to instantiate a class with dependency injection
+```php
+
+
+
+    class ClassA implements InterfaceA {
+
+        public function __construct() {}
+
+        public function sayWhat() {
+            return "Here I am!";
+        }
+    }
+
+    class ClassB  {
+
+        private $a;
+
+        public function __constructor(InterfaceA $a) {
+            $this->a = $a;
+        }
+        public function saySomething() {
+            return $this->a->sayWhat;
+        }
+    }
+
+    $ioc = Bootstrap::ioc();
+    $ioc->register(ClassA::class);
+
+    $b = $ioc->instantiate(ClassB::class);
+    echo($a->saySomething()); // "Here I am!"
+```
 
 ### Resolving non-resolvable parameters
 WebX/Ioc recursively tries to resolve all dependent interfaces upon object creation. Other dependencies must be resolved externally.
