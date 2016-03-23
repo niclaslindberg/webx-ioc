@@ -323,7 +323,7 @@ of the named instance to be resolved.
         }
     }
 
-    $resolver = function(\ReflectionParameter $param,array $config) {
+    $resolver = function(\ReflectionParameter $param,array $config, Ioc $ioc) {
         //The $config parameter is the second parameter of register().
         $id = $config["id"];
         if($id==='us') {

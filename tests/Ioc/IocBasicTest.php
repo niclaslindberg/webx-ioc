@@ -104,9 +104,9 @@ class IocBasicTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($a3,$ioc->get(IA::class,null,Ioc::RESOLUTION_ORDER_LAST));
     }
 
-    public function testResolutionWithClosureReturnsClassNamePass() {
-        $ioc = new IocImpl(function(\ReflectionParameter $param, $config) {
-            return A::class;
+    public function testResolutionWithClosureInstantiatesClassWithIocPass() {
+        $ioc = new IocImpl(function(\ReflectionParameter $param, $config, Ioc $ioc) {
+            return $ioc->instantiate(A::class);
         });
         $ioc->register(DependentA::class);
 

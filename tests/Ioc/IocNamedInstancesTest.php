@@ -71,7 +71,9 @@ class IocNamedInstancesTest extends \PHPUnit_Framework_TestCase
 
     public function testRegisterUnknownCallsResolverWithId() {
         $idHistory = [];
-        $resolver = function(\ReflectionParameter $param, $config) use(&$idHistory) {
+        $resolver = function(\ReflectionParameter $param, $config, Ioc $ioc) use(&$idHistory) {
+            $this->assertNotNull($ioc);
+            $this->assertInstanceOf(Ioc::class,$ioc);
             $idHistory[] = $config["id"];
             return $config["id"];
         };

@@ -131,13 +131,8 @@ class IocImpl implements Ioc {
                         $arguments[] = $resolvedInstances[0];
                     } else if (null !== ($value = isset($config["parameters"][$paramName]) ? $config["parameters"][$paramName] : null)) {
                         $arguments[] = $value;
-                    } else if ($this->resolver && (NULL !== ($resolution = call_user_func_array($this->resolver, [$p, $config])))) {
-                        if((is_string($resolution) && class_exists($resolution))) {
-                            $this->register($resolution);
-                            $arguments[] = $this->resolveInstances($paramRefClass->getName())[0];
-                        } else {
-                            $arguments[] = $resolution;
-                        }
+                    } else if ($this->resolver && (NULL !== ($resolution = call_user_func_array($this->resolver, [$p, $config,$this])))) {
+                        $arguments[] = $resolution;
                     } else {
                         if ($p->isDefaultValueAvailable()) {
                             $arguments[] = $p->getDefaultValue();
