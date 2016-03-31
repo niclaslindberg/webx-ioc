@@ -105,7 +105,7 @@ class IocBasicTest extends \PHPUnit_Framework_TestCase
     }
 
     public function testResolutionWithClosureInstantiatesClassWithIocPass() {
-        $ioc = new IocImpl(function(\ReflectionParameter $param, $config, Ioc $ioc) {
+        $ioc = new IocImpl(function(IocNonResolvable $nonResolvable, Ioc $ioc) {
             return $ioc->instantiate(A::class);
         });
         $ioc->register(DependentA::class);

@@ -26,7 +26,7 @@ class IocUnknownTest extends \PHPUnit_Framework_TestCase
 
     public function testUnknownFailsWithClosureToDeliveryArray() {
         $array = [1];
-        $closure = function(\ReflectionParameter $parameter) use ($array) {
+        $closure = function(IocNonResolvable $nonResolvable) use ($array) {
             return $array;
         };
 

@@ -114,6 +114,8 @@ class IocImpl implements Ioc {
                 }
                 $this->instancesByInterface[$interfaceName][$id] = $instances;
                 return $instances;
+            } else if ($this->resolver && (NULL !== ($resolution = call_user_func_array($this->resolver, [new IocNonResolvableImpl(null,new ReflectionClass($interfaceName), $id),$this])))) {
+                return [$resolution];
             }
         } else {
             throw new IocException("Interface name must be passed as a string");
@@ -131,7 +133,7 @@ class IocImpl implements Ioc {
                         $arguments[] = $resolvedInstances[0];
                     } else if (null !== ($value = isset($config["parameters"][$paramName]) ? $config["parameters"][$paramName] : null)) {
                         $arguments[] = $value;
-                    } else if ($this->resolver && (NULL !== ($resolution = call_user_func_array($this->resolver, [$p, $config,$this])))) {
+                    } else if ($this->resolver && (NULL !== ($resolution = call_user_func_array($this->resolver, [new IocNonResolvableImpl($p, $p->getClass(),$config),$this])))) {
                         $arguments[] = $resolution;
                     } else {
                         if ($p->isDefaultValueAvailable()) {
@@ -146,7 +148,7 @@ class IocImpl implements Ioc {
                 return $refClass->newInstanceArgs();
             }
         } else {
-           return $refClass->newInstanceWithoutConstructor();
+            return $refClass->newInstanceWithoutConstructor();
         }
     }
 }

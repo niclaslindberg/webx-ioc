@@ -186,7 +186,7 @@ configuration array on the 'register()' function. All values are optional.
     }
 
     $ioc = Bootstrap::ioc();
-    $ioc->initStatic(ClassA::class, "init"); //Proxies the not-yet existing instance of ClassB
+    $ioc->initStatic(ClassA::class, "init"); //Proxy's the not-yet existing instance of ClassB
     $ioc->register(ClassA::class);
     $ioc->register(ClassB::class);
 
@@ -249,7 +249,7 @@ WebX/Ioc recursively tries to resolve all dependent interfaces upon object creat
 
     // Will be invoked whenever the container needs
     // to resolve an non-resolvable parameter.
-    $resolver = function(\ReflectionParameter $param) {
+    $resolver = function(IocNonResolvable $nonResolvable, Ioc $ioc) {
         if($param->name()==='currency') {
             return "USD";
         }
@@ -296,10 +296,12 @@ settings.json
 
     $settings = json_decode(file_get_contents("settings.json"),TRUE);
 
-    $resolver = function(\ReflectionParameter $param) use ($settings) {
-        $key = $param->getDeclaringClass()->getShortName();
-        $subKey = $param->getName();
-        return isset($settings[$key][$subKey]) ? $settings[$key][$subKey] : null;
+    $resolver = function(IocNonResolvable $nonResolvable, Ioc $ioc) use ($settings) {
+        if($param = $nonResolvable->unresolvedParameter()) {
+            $key = $param->getDeclaringClass()->getShortName();
+            $subKey = $param->getName();
+            return isset($settings[$key][$subKey]) ? $settings[$key][$subKey] : null;
+        }
     };
 
     Bootstrap::init($resolver);
@@ -323,8 +325,9 @@ of the named instance to be resolved.
         }
     }
 
-    $resolver = function(\ReflectionParameter $param,array $config, Ioc $ioc) {
+    $resolver = function(IocNonResolvable $nonResolvable, Ioc $ioc) {
         //The $config parameter is the second parameter of register().
+        $config = $nonResolvable->config();
         $id = $config["id"];
         if($id==='us') {
             return 'USD';
