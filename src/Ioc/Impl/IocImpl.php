@@ -80,6 +80,12 @@ class IocImpl implements Ioc {
                     }
                     $this->pointersByInterface[$interface][null][] = $pointer;
                 }
+                if(isset($config["registerClass"]) && $config["registerClass"]===true) {
+                    $this->pointersByInterface[$refClass->getName()][null][] = $pointer;
+                    if ($id) {
+                        $this->pointersByInterface[$refClass->getName()][$id][] = $pointer;
+                    }
+                }
             } else {
                 throw new IocException("Can't register an non-instantiable class. Hint: Register a concrete class name or an instance of a class.");
             }

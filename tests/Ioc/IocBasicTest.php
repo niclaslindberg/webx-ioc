@@ -124,4 +124,14 @@ class IocBasicTest extends \PHPUnit_Framework_TestCase
         $this->assertNotNull($dependentA);
         $this->assertSame($a,$dependentA->getA());
     }
+
+
+    public function testResolveClassByClassName() {
+        $ioc = new IocImpl();
+        $a = new A();
+        $ioc->register($a,["registerClass"=>true]);
+
+        $this->assertSame($a,$ioc->get(A::class));
+
+    }
 }
