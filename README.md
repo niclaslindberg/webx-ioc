@@ -113,6 +113,18 @@ configuration array on the 'register()' function. All values are optional.
     $a2 = $ioc->get(InterfaceA::class,"id2");
     echo($a1 !== $a2); // true
 ```
+
+#### Resolving an instance by it's class name
+```php
+    class ClassA implements InterfaceA {}
+
+    $ioc = Bootstrap::ioc();
+    $ioc->register(ClassA::class,["registerClass"=>true]);
+
+    $a1 = $ioc->get(ClassA::class);
+    echo($a1 instanceof ClassA); // true
+```
+
 #### Registering a named instance and configuring a mapping to it
 ```php
     class ClassA implements InterfaceA {}
@@ -186,7 +198,7 @@ configuration array on the 'register()' function. All values are optional.
     }
 
     $ioc = Bootstrap::ioc();
-    $ioc->initStatic(ClassA::class, "init"); //Proxy's the not-yet existing instance of ClassB
+    $ioc->initStatic(ClassA::class, "init"); //Proxys the not-yet existing instance of ClassB
     $ioc->register(ClassA::class);
     $ioc->register(ClassB::class);
 
