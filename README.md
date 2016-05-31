@@ -98,7 +98,8 @@ configuration array on the 'register()' function. All values are optional.
         ],
         "types" => (array) [
             "constructorParam1" => (string) //Interface type
-            //when a constructor param is of type `array` the container needs to know what type of instances should be resolved.
+            //when a constructor param is of type `array` the container
+            //needs to know what type of instances should be resolved.
         ]
     ];
 
