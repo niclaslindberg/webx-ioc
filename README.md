@@ -95,6 +95,10 @@ configuration array on the 'register()' function. All values are optional.
         "parameters" => (array) [
             "constructorParam1" => (mixed)
             //Any value to be bound to constructorParam1
+        ],
+        "types" => (array) [
+            "constructorParam1" => (string) //Interface type
+            //when a constructor param is of type `array` the container needs to know what type of instances should be resolved.
         ]
     ];
 

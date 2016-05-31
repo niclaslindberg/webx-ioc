@@ -8,20 +8,7 @@ use WebX\Ioc\IocException;
 class IocUnknownTest extends \PHPUnit_Framework_TestCase
 {
 
-    public function testUnknown_NoResolver_WithDefault_Pass() {
-        $ioc = new IocImpl();
-        $ioc->register(UnknownArrayWithDefault::class);
-        $unknown = $ioc->get(IUnknownArray::class);
-    }
-
-    /**
-     * @expectedException \WebX\Ioc\IocException
-     */
-    public function testUnknown_NoResolver_NoDefault_Fails() {
-        $ioc = new IocImpl();
-        $ioc->register(UnknownArrayNoDefault::class);
-        $unknown = $ioc->get(IUnknownArray::class);
-    }
+ 
 
 
     public function testUnknownFailsWithClosureToDeliveryArray() {
