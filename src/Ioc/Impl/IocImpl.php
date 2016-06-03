@@ -120,7 +120,7 @@ class IocImpl implements Ioc {
                 }
                 $this->instancesByInterface[$interfaceName][$id] = $instances;
                 return $instances;
-            } else if ($this->resolver && (NULL !== ($resolution = call_user_func_array($this->resolver, [new IocNonResolvableImpl(null,new ReflectionClass($interfaceName), $id),$this])))) {
+            } else if ($this->resolver && (NULL !== ($resolution = call_user_func_array($this->resolver, [new IocNonResolvableImpl(null,new ReflectionClass($interfaceName), ["id"=>$id]),$this])))) {
                 return [$resolution];
             }
         } else {
@@ -139,15 +139,10 @@ class IocImpl implements Ioc {
                         $arguments[] = $resolvedInstances[0];
                     } else if (null !== ($value = isset($config["parameters"][$paramName]) ? $config["parameters"][$paramName] : null)) {
                         $arguments[] = $value;
+                    } else if ($p->isArray() && (null !== ($type = isset($config["types"][$paramName]) ? $config["types"][$paramName] : null))) {
+                        $arguments[] = $this->getAll($type);
                     } else if ($this->resolver && (NULL !== ($resolution = call_user_func_array($this->resolver, [new IocNonResolvableImpl($p, $p->getClass(),$config),$this])))) {
                         $arguments[] = $resolution;
-                    } else if ($p->isArray()) {
-                        if(null !== ($type = isset($config["types"][$paramName]) ? $config["types"][$paramName] : null)) {
-                            $arguments[] = $this->getAll($type);
-                        } else {
-                            var_dump($config);
-                            throw new IocException(sprintf("The parameter %s#%s is of type array and config.types.%s is missing",$className,$paramName,$paramName));
-                        }
                     } else {
                         if ($p->isDefaultValueAvailable()) {
                             $arguments[] = $p->getDefaultValue();

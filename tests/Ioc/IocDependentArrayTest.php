@@ -8,18 +8,6 @@ use WebX\Ioc\IocException;
 class IocDependentArrayTest extends \PHPUnit_Framework_TestCase
 {
 
-    public function testNoTypeFailsA() {
-        $ioc = new IocImpl();
-
-        $ioc->register(A::class);
-        $ioc->register(DependentArrayA::class);
-        try {
-            $dependentA = $ioc->get(IDependentArrayA::class);
-            $this->fail("Should never reach here");
-        }
-        catch(IocException $e) {}
-    }
-
     public function testWithTypeSuccessA() {
         $ioc = new IocImpl();
 
