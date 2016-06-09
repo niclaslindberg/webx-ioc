@@ -134,4 +134,15 @@ class IocBasicTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($a,$ioc->get(A::class));
 
     }
+
+    public function testInstantiateWithConcreteClassDependency() {
+
+        $ioc = new IocImpl();
+        $b = new B();
+        $ioc->register($b,["registerClass"=>true]);
+        $a = $ioc->instantiate(DependentA_ConcreteB::class);
+        $this->assertInstanceOf(DependentA_ConcreteB::class,$a);
+        $this->assertSame($b,$a->getB());
+    }
+
 }

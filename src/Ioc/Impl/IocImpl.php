@@ -135,7 +135,7 @@ class IocImpl implements Ioc {
                 $arguments = array();
                 foreach ($parameters as $p) {
                     $paramName = $p->getName();
-                    if (($paramRefClass = $p->getClass()) && $paramRefClass->isInterface() && ($resolvedInstances = $this->resolveInstances($paramRefClass->getName(), isset($config["mappings"][$paramName]) ? $config["mappings"][$paramName] : null))) {
+                    if (($paramRefClass = $p->getClass()) && ($resolvedInstances = $this->resolveInstances($paramRefClass->getName(), isset($config["mappings"][$paramName]) ? $config["mappings"][$paramName] : null))) {
                         $arguments[] = $resolvedInstances[0];
                     } else if (null !== ($value = isset($config["parameters"][$paramName]) ? $config["parameters"][$paramName] : null)) {
                         $arguments[] = $value;
