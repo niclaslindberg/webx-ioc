@@ -258,6 +258,28 @@ If you want to instantiate a class with dependency injection
     echo($a->saySomething()); // "Here I am!"
 ```
 
+#### Invoke a a `Closure`
+Closures may be invoked with its dependencies automatically resolved
+```php
+
+    class ClassA implements InterfaceA {
+
+        public function __construct() {}
+
+        public function sayWhat() {
+            return "Here I am!";
+        }
+    }
+
+    $ioc = Bootstrap::ioc();
+    $ioc->register(ClassA::class);
+
+    $result = $ioc->invoke(function(InterfaceA $a) {
+        return $a->sayWhat();
+    });
+    echo($result); // "Here I am!"
+```
+
 ### Resolving non-resolvable parameters
 WebX/Ioc recursively tries to resolve all dependent interfaces upon object creation. Other dependencies must be resolved externally.
 #### Example 1
