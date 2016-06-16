@@ -6,6 +6,7 @@ use Closure;
 use ReflectionClass;
 use ReflectionFunction;
 use ReflectionFunctionAbstract;
+use ReflectionParameter;
 use WebX\Ioc\Ioc;
 use WebX\Ioc\IocException;
 use \ReflectionMethod;
@@ -18,6 +19,10 @@ class IocImpl implements Ioc {
     private $configList = array();
     private $defsList = array();
     private $resolver;
+
+    /**
+     * @var ProxyFactory
+     */
     private $proxyFactory;
 
     /**
@@ -40,7 +45,9 @@ class IocImpl implements Ioc {
             $refClass = new ReflectionClass($className);
             $refMethod = $refClass->getMethod($method);
             if($refMethod->isStatic()) {
-                if($arguments = $this->buildParameters($refMethod, $config)) {
+                if($arguments = $this->buildParameters($refMethod, $config, function(ReflectionParameter $p){
+                    return $this->proxyFactory->createProxy($p->getClass());
+                })) {
                     $refMethod->invokeArgs(null,$arguments);
                 } else {
                     $refMethod->invoke(null);
@@ -162,7 +169,7 @@ class IocImpl implements Ioc {
         }
     }
 
-    private function buildParameters(ReflectionFunctionAbstract $reflectionMethod, array $config = null) {
+    private function buildParameters(ReflectionFunctionAbstract $reflectionMethod, array $config = null, Closure $resolver = null) {
         $arguments = array();
         foreach ($reflectionMethod->getParameters() as $p) {
             $paramName = $p->getName();
@@ -175,10 +182,12 @@ class IocImpl implements Ioc {
             } else if ($this->resolver && (NULL !== ($resolution = call_user_func_array($this->resolver, [new IocNonResolvableImpl($p, ($reflectionMethod instanceof ReflectionMethod ? $reflectionMethod->getDeclaringClass() : null),$config),$this])))) {
                 $arguments[] = $resolution;
             } else {
-                if ($p->isDefaultValueAvailable()) {
+                if($resolver && ($value = $resolver($p))) {
+                    $arguments[] = $value;
+                } else if ($p->isDefaultValueAvailable()) {
                     $arguments[] = $p->getDefaultValue();
                 } else {
-                    throw new IocException(sprintf("Unresolved parameter '%s' in '%s' without default value", $p->getName(), ($reflectionMethod instanceof ReflectionMethod) ? ($reflectionMethod->getDeclaringClass() ? $reflectionMethod->getDeclaringClass()->getName() : "unknown"):"uknown"));
+                    throw new IocException(sprintf("Unresolved parameter '%s' in '%s' without default value", $p->getName(), ($reflectionMethod instanceof ReflectionMethod) ? ($reflectionMethod->getDeclaringClass() ? $reflectionMethod->getDeclaringClass()->getName() : "unknown") : "uknown"));
                 }
             }
         }
