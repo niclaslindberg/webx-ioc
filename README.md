@@ -176,6 +176,19 @@ configuration array on the 'register()' function. All values are optional.
     $a = $ioc->get(InterfaceA::class);
     echo($a->someVar); // "someValue"
 ```
+#### Registering a factory closure to instantiate an object
+```php
+
+
+    $ioc = Bootstrap::ioc();
+    $ioc->register(ClassB::class);
+    $ioc->registerFactory(function(InterfaceB $b){
+        return new ClassA($b);
+    },InterfaceA::class);
+
+    $a = $ioc->get(InterfaceA::class);
+```
+
 #### Statically initialize a class
 ```php
 
