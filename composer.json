@@ -4,7 +4,8 @@
   "autoload": {
     "psr-4": {
       "WebX\\Ioc\\":  "src/Ioc/"
-    }
+    },
+    "files": ["src/Ioc/Impl/Functions.php"]
   },
   "autoload-dev": {
     "psr-4": {

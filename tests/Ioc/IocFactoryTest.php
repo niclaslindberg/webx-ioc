@@ -13,9 +13,9 @@ class IocFactoryTest extends \PHPUnit_Framework_TestCase
 
     public function testCreateClassWithoutDependencies_Pass() {
         $ioc = new IocImpl();
-        $ioc->registerFactory(function(){
+        $ioc->register(ClassA::class, ["factory"=>function(){
             return new ClassA();
-        },InterfaceA::class);
+        }]);
 
         $a = $ioc->get(InterfaceA::class);
         $this->assertNotNull($a);
@@ -30,14 +30,36 @@ class IocFactoryTest extends \PHPUnit_Framework_TestCase
     public function testCreateClassWithDependencies_Pass() {
         $ioc = new IocImpl();
         $ioc->register(ClassA::class);
-        $ioc->registerFactory(function(InterfaceA $a){
+        $ioc->register(ClassB::class,["factory"=>function(InterfaceA $a){
             return new ClassB($a);
-        },InterfaceB::class);
+        }]);
 
         $a = $ioc->get(InterfaceA::class);
         $this->assertNotNull($a);
         $b = $ioc->get(InterfaceB::class);
         $this->assertNotNull($b);
+        $this->assertInstanceOf(InterfaceA::class,$a);
+        $this->assertInstanceOf(InterfaceB::class,$b);
+
+
+        $this->assertSame($a,$b->getA());
+
+
+    }
+
+    public function testCreateClassWithDependenciesAndParameter_Pass() {
+        $ioc = new IocImpl();
+        $testValue = "Hello";
+        $ioc->register(ClassA::class);
+        $ioc->register(ClassB::class,["factory"=>function(InterfaceA $a,$value){
+            return new ClassB($a,$value);
+        },"parameters"=>["value"=>$testValue]]);
+
+        $a = $ioc->get(InterfaceA::class);
+        $this->assertNotNull($a);
+        $b = $ioc->get(InterfaceB::class);
+        $this->assertNotNull($b);
+        $this->assertEquals($testValue,$b->getValue());
         $this->assertInstanceOf(InterfaceA::class,$a);
         $this->assertInstanceOf(InterfaceB::class,$b);
 

@@ -182,9 +182,9 @@ configuration array on the 'register()' function. All values are optional.
 
     $ioc = Bootstrap::ioc();
     $ioc->register(ClassB::class);
-    $ioc->registerFactory(function(InterfaceB $b){
+    $ioc->register(ClassA::class, ["factory" => function(InterfaceB $b){
         return new ClassA($b);
-    },InterfaceA::class);
+    }]);
 
     $a = $ioc->get(InterfaceA::class);
 ```

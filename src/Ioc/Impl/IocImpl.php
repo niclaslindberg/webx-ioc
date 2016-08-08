@@ -92,27 +92,9 @@ class IocImpl implements Ioc {
         }
     }
 
-    public function registerFactory(Closure $closure, $interfaces, array $config = null) {
-        $pointer = array_push($this->defsList, $closure)-1;
-        $this->configList[] = $config;
-        if(!is_array($interfaces)) {
-            $interfaces = [$interfaces];
-        }
-        foreach($interfaces as $interface) {
-            if($id = isset($config["id"]) ? $config["id"] : null) {
-                if(!isset($this->pointersByInterface[$interface][$id])) {
-                    $this->pointersByInterface[$interface][$id][] = $pointer;
-                } else {
-                    throw new IocException(sprintf("Duplicate unique id '%s' registration for interface '%s' by factory'",$id,$interface));
-                }
-            }
-            $this->pointersByInterface[$interface][null][] = $pointer;
-        }
-    }
-
     public function get($interfaceName, $id = null, $resolutionOrder = Ioc::RESOLUTION_ORDER_LAST) {
         if(($instances = $this->resolveInstances($interfaceName,$id))) {
-            return $resolutionOrder===IOC::RESOLUTION_ORDER_LAST ? array_pop($instances) : array_shift($instances);
+            return $resolutionOrder===Ioc::RESOLUTION_ORDER_LAST ? array_pop($instances) : array_shift($instances);
         }
         throw new IocNonResolvableException($interfaceName,$id);
     }
@@ -129,11 +111,12 @@ class IocImpl implements Ioc {
                 $instances = [];
                 foreach ($pointers as $pointer) {
                     if (is_string($def = &$this->defsList[$pointer])) {
-                        $config = isset($this->configList[$pointer]) ? $this->configList[$pointer] : null;
-                        $def = $this->instantiate($def,$config);
-                    } else if ($def instanceof Closure) {
-                        $config = isset($this->configList[$pointer]) ? $this->configList[$pointer] : null;
-                        $def = $this->invoke($def,$config);
+                        $config = readArray($pointer,$this->configList);
+                        if($factory = readArray("factory",$config)) {
+                            $def = $this->invoke($factory,$config);
+                        } else {
+                            $def = $this->instantiate($def, $config);
+                        }
                     }
                     $instances[] = $def;
                 }

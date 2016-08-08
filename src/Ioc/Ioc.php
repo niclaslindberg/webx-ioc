@@ -28,7 +28,8 @@ interface Ioc
      *      ],
      *      "params" => [
      *          "constructorParamName1 => "someValue"
-     *      ]
+     *      ],
+     *      "factory" => Closure (Closure to be invoked to instantiate the class)
      * ]
      * </code>.
      * @return void
@@ -38,19 +39,9 @@ interface Ioc
 
 
     /**
-     * Registers a factory to be invoked to create an instance.
-     * @param Closure $closure
-     * @param array|string $interfaces one or more interfaces implemented by the future returned object by the closure.
-     * @param array|null $config (Same as in register)
-     * @return void
-     * @throws IocException if a registration error occurs (Reflection exception, Non-instantiable class or duplicated Id).
-     */
-    public function registerFactory(Closure $closure, $interfaces, array $config = null);
-
-    /**
-     * Initializes a
-     * @param $className the className of the class to be statically initialized
-     * @param $method the name of the static method to be called
+     * Initializes a class with a static method call.
+     * @param string $className the className of the class to be statically initialized
+     * @param string $method the name of the static method to be called
      * @param array|null $config (Same as in register)
      * @return void
      */
@@ -75,7 +66,7 @@ interface Ioc
 
     /**
      * Instantiates a given class and injects constructor dependencies
-     * @param $className the concreate class to be instantiated
+     * @param string $className the concreate class to be instantiated
      * @param array|null $config (Same as in register)
      * @return mixed
      */
