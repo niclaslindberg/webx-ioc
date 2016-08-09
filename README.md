@@ -1,14 +1,16 @@
 # WebX-Ioc - PHP IOC Container
 Main features and design goals of webx-ioc:
+* No external dependencies - easy to integrate into any application or framework.
 * Resolve instance(single) and array of instances(list) of an interface.
 * Support for named instances and constructor parameter mappings.
 * Simplicity.
 * Support for:
   * resolving non-resolvable dependencies. Calls a user defined Closure for resolution.
-  * initalizing classes with static methods.
+  * initializing classes with static methods.
   * registration of class names or already existing instances. Automatically scans classes/instances for implemented interfaces.
   * instantiation of non-registered classes. Invokes constructor with resolved parameters.
   * typed array dependencies by configuring interface name to be resolved.
+  * concrete class resolution by allowing concrete class name to be resolved.
 * Very fast & light weight (< 180 lines, lazy initialization, resolution cache, dynamic proxies etc).
 * No external dependencies.
 
