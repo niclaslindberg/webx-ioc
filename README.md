@@ -112,7 +112,7 @@ configuration array on the 'register()' function. All values are optional.
 
     ];
 
-    $ioc->register("someClass::class",$config);
+    $ioc->register(SomeClass::class,$config);
 ```
 
 #### Registering a named instance or class
