@@ -77,7 +77,7 @@ The container supports registration of already existing instances to be resolved
     echo($a===$a2); // true
 ```
 
-### Configuring registered instances
+### Configuring instances
 Web/Ioc allows instances to be configured. Configuration is done with the optional
 configuration array on the 'register()' function. All values are optional.
 
@@ -100,7 +100,13 @@ configuration array on the 'register()' function. All values are optional.
             "constructorParam1" => (string) //Interface type
             //when a constructor param is of type `array` the container
             //needs to know what type of instances should be resolved.
-        ]
+        ],
+        "factory" => (Closure) control instantiation by a dependency injection supported Closure.
+            //Ex: function(IA $resolvedInstance) {
+            //  return new ClassA($resolvedInstance)
+            //}
+            //Note: "types","parameters" and "mappings" are supported for closure arguments.
+
     ];
 
     $ioc->register("someClass::class",$config);
@@ -119,7 +125,7 @@ configuration array on the 'register()' function. All values are optional.
     echo($a1 !== $a2); // true
 ```
 
-#### Resolving an instance by it's class name
+#### Resolving an instance by its class name
 ```php
     class ClassA implements InterfaceA {}
 
