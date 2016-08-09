@@ -8,7 +8,8 @@ Main features and design goals of webx-ioc:
   * initalizing classes with static methods.
   * registration of class names or already existing instances. Automatically scans classes/instances for implemented interfaces.
   * instantiation of non-registered classes. Invokes constructor with resolved parameters.
-* Very fast & light weight (< 200 lines, lazy initialization, resolution cache, dynamic proxies etc).
+  * typed array dependencies by configuring interface name to be resolved.
+* Very fast & light weight (< 180 lines, lazy initialization, resolution cache, dynamic proxies etc).
 * No external dependencies.
 
 ## Installing
