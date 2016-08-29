@@ -11,9 +11,21 @@ class IocBasicTest extends \PHPUnit_Framework_TestCase
     /**
      * @expectedException \WebX\Ioc\IocException
      */
-    public function testRegisterInterfaceFails() {
+    public function testRegisterInterfaceWithoutFactoryFails() {
         $ioc = new IocImpl();
         $ioc->register(IA::class);
+        $a = $ioc->get(IA::class);
+
+    }
+
+    public function testRegisterInterfaceWithFactoryPass() {
+        $ioc = new IocImpl();
+        $ioc->register(IA::class,["factory"=>function(){
+            return new A();
+        }]);
+        $a = $ioc->get(IA::class);
+        $this->assertNotNull($a);
+        $this->assertInstanceOf(IA::class,$a);
     }
 
     public function registerInstanceAndResolvePass() {

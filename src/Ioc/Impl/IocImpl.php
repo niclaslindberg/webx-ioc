@@ -63,29 +63,22 @@ class IocImpl implements Ioc {
     public function register($classNameOrObject, array $config = null) {
         try {
             $refClass = new ReflectionClass($classNameOrObject);
-            if ($refClass->isInstantiable()) {
-                $pointer = array_push($this->defsList, $classNameOrObject)-1;
-                $this->configList[] = $config;
-                $id = isset($config["id"]) ? $config["id"] : null;
-                foreach ($refClass->getInterfaces() as $refInterface) {
-                    $interface = $refInterface->getName();
-                    if($id) {
-                        if(!isset($this->pointersByInterface[$interface][$id])) {
-                            $this->pointersByInterface[$interface][$id][] = $pointer;
-                        } else {
-                            throw new IocException(sprintf("Duplicate unique id '%s' registration for interface '%s' by class '%s'",$id,$interface,$refClass->getName()));
-                        }
-                    }
-                    $this->pointersByInterface[$interface][null][] = $pointer;
-                }
-                if(isset($config["registerClass"]) && $config["registerClass"]===true) {
-                    $this->pointersByInterface[$refClass->getName()][null][] = $pointer;
-                    if ($id) {
-                        $this->pointersByInterface[$refClass->getName()][$id][] = $pointer;
+            $pointer = array_push($this->defsList, is_string($classNameOrObject) ? $refClass : $classNameOrObject)-1;
+            $this->configList[] = $config;
+            $id = readArray("id",$config);
+            $interfaces = $refClass->getInterfaceNames();
+            if ($refClass->isInterface() || ($refClass->isInstantiable() && readArray("registerClass",$config)===true)) {
+                $interfaces[] = $refClass->getName();
+            }
+            foreach ($interfaces as $interface) {
+                if($id) {
+                    if(!isset($this->pointersByInterface[$interface][$id])) {
+                        $this->pointersByInterface[$interface][$id][] = $pointer;
+                    } else {
+                        throw new IocException(sprintf("Duplicate unique id '%s' registration for interface '%s' by class '%s'",$id,$interface,$refClass->getName()));
                     }
                 }
-            } else {
-                throw new IocException("Can't register an non-instantiable class. Hint: Register a concrete class name or an instance of a class.");
+                $this->pointersByInterface[$interface][null][] = $pointer;
             }
         } catch(\ReflectionException $e) {
             throw new IocException(sprintf($e->getMessage(),$e));
@@ -110,12 +103,23 @@ class IocImpl implements Ioc {
             } else if (NULL !== ($pointers = isset($this->pointersByInterface[$interfaceName][$id]) ? $this->pointersByInterface[$interfaceName][$id] : null)) {
                 $instances = [];
                 foreach ($pointers as $pointer) {
-                    if (is_string($def = &$this->defsList[$pointer])) {
+                    /** @var ReflectionClass $def */
+                    $def = &$this->defsList[$pointer];
+                    if (is_a($def,ReflectionClass::class)) {
                         $config = readArray($pointer,$this->configList);
-                        if($factory = readArray("factory",$config)) {
-                            $def = $this->invoke($factory,$config);
+                        $factory = readArray("factory",$config);
+                        if($def->isInterface()) {
+                            if($factory) {
+                                $def = $this->invoke($factory,$config);
+                            } else {
+                                throw new IocException("config.factory must be defined when registering an interface.");
+                            }
                         } else {
-                            $def = $this->instantiate($def, $config);
+                            if($factory) {
+                                $def = $this->invoke($factory,$config);
+                            } else {
+                                $def = $this->instantiateInternal($def, $config);
+                            }
                         }
                     }
                     $instances[] = $def;
@@ -130,8 +134,7 @@ class IocImpl implements Ioc {
         }
     }
 
-    public function instantiate($className,array $config = null) {
-        $refClass = new ReflectionClass($className);
+    private function instantiateInternal(ReflectionClass $refClass, array $config = null) {
         if ($constructor = $refClass->getConstructor()) {
             if ($arguments = $this->buildParameters($constructor,$config)) {
                 return $refClass->newInstanceArgs($arguments);
@@ -141,6 +144,10 @@ class IocImpl implements Ioc {
         } else {
             return $refClass->newInstanceWithoutConstructor();
         }
+    }
+
+    public function instantiate($className,array $config = null) {
+        return $this->instantiateInternal(new ReflectionClass($className));
     }
 
     public function invoke(Closure $closure,array $config = null) {
