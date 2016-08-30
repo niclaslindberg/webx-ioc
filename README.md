@@ -8,6 +8,7 @@ Main features and design goals of webx-ioc:
   * resolving non-resolvable dependencies. Calls a user defined Closure for resolution.
   * initializing classes with static methods.
   * registration of class names or already existing instances. Automatically scans classes/instances for implemented interfaces.
+  * registration of interfaces with referred instantiation by factories (dependency injection supported Closures).
   * instantiation of non-registered classes. Invokes constructor with resolved parameters.
   * typed array dependencies by configuring interface name to be resolved.
   * concrete class resolution by allowing concrete class name to be resolved.
