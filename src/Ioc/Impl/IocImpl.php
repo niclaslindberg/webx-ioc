@@ -147,7 +147,7 @@ class IocImpl implements Ioc {
     }
 
     public function instantiate($className,array $config = null) {
-        return $this->instantiateInternal(new ReflectionClass($className));
+        return $this->instantiateInternal(new ReflectionClass($className),$config);
     }
 
     public function invoke(Closure $closure,array $config = null) {
