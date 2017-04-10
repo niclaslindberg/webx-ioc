@@ -141,7 +141,7 @@ class IocBasicTest extends \PHPUnit_Framework_TestCase
     public function testResolveClassByClassName() {
         $ioc = new IocImpl();
         $a = new A();
-        $ioc->register($a,["registerClass"=>true]);
+        $ioc->register($a,["class"=>true]);
 
         $this->assertSame($a,$ioc->get(A::class));
 
@@ -151,7 +151,7 @@ class IocBasicTest extends \PHPUnit_Framework_TestCase
 
         $ioc = new IocImpl();
         $b = new B();
-        $ioc->register($b,["registerClass"=>true]);
+        $ioc->register($b,["class"=>true]);
         $a = $ioc->instantiate(DependentA_ConcreteB::class);
         $this->assertInstanceOf(DependentA_ConcreteB::class,$a);
         $this->assertSame($b,$a->getB());

@@ -39,15 +39,6 @@ interface Ioc
 
 
     /**
-     * Initializes a class with a static method call.
-     * @param string $className the className of the class to be statically initialized
-     * @param string $method the name of the static method to be called
-     * @param array|null $config (Same as in register)
-     * @return void
-     */
-    public function initStatic($className, $method, array $config=null);
-
-    /**
      * Returns an object (first if multiple) that implements the interface.
      * @param string $interfaceName
      * @param string|null $id the name of the instance to resolve.

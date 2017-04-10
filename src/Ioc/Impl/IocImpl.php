@@ -37,29 +37,6 @@ class IocImpl implements Ioc {
         $this->resolver = $unknownResolver;
     }
 
-    public function initStatic($className, $method, array $config = null) {
-        if(!$this->proxyFactory) {
-            $this->proxyFactory = new ProxyFactory($this);
-        }
-        try {
-            $refClass = new ReflectionClass($className);
-            $refMethod = $refClass->getMethod($method);
-            if($refMethod->isStatic()) {
-                if($arguments = $this->buildParameters($refMethod, $config, function(ReflectionParameter $p){
-                    return $this->proxyFactory->createProxy($p->getClass());
-                })) {
-                    $refMethod->invokeArgs(null,$arguments);
-                } else {
-                    $refMethod->invoke(null);
-                }
-            } else {
-                throw new IocException("The method {$className}::{$method} is not static");
-            }
-        } catch(\ReflectionException $e) {
-            throw new IocException(sprintf($e->getMessage(),$e));
-        }
-    }
-
     public function register($classNameOrObject, array $config = null) {
         try {
             $refClass = new ReflectionClass($classNameOrObject);
@@ -67,7 +44,7 @@ class IocImpl implements Ioc {
             $this->configList[] = $config;
             $id = readArray("id",$config);
             $interfaces = $refClass->getInterfaceNames();
-            if ($refClass->isInterface() || ($refClass->isInstantiable() && readArray("registerClass",$config)===true)) {
+            if ($refClass->isInterface() || ($refClass->isInstantiable() && readArray("class",$config)===true)) {
                 $interfaces[] = $refClass->getName();
             }
             foreach ($interfaces as $interface) {
