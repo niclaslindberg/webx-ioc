@@ -138,6 +138,7 @@ class IocImpl implements Ioc {
 
     private function buildParameters(ReflectionFunctionAbstract $reflectionMethod, array $config = null, Closure $resolver = null) {
         $arguments = array();
+        $missingParameterCount = 0;
         foreach ($reflectionMethod->getParameters() as $p) {
             $paramName = $p->getName();
             if (null !== ($value = isset($config["parameters"][$paramName]) ? $config["parameters"][$paramName] : null)) {
@@ -146,6 +147,9 @@ class IocImpl implements Ioc {
                 $arguments[] = $resolvedInstances[0];
             } else if ($p->isArray() && (null !== ($type = isset($config["types"][$paramName]) ? $config["types"][$paramName] : null))) {
                 $arguments[] = $this->getAll($type);
+            } else if (null !== ($value = isset($config["parameters"][$missingParameterCount]) ? $config["parameters"][$missingParameterCount] : null)) {
+                $arguments[] = $value;
+                $missingParameterCount++;
             } else if ($this->resolver && (NULL !== ($resolution = call_user_func_array($this->resolver, [new IocNonResolvableImpl($p, ($reflectionMethod instanceof ReflectionMethod ? $reflectionMethod->getDeclaringClass() : null),$config),$this])))) {
                 $arguments[] = $resolution;
             } else {
