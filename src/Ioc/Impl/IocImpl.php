@@ -21,11 +21,6 @@ class IocImpl implements Ioc {
     private $resolver;
 
     /**
-     * @var ProxyFactory
-     */
-    private $proxyFactory;
-
-    /**
      * @param Closure|null $unknownResolver the function to be called by the IOC when a dependent construct parameter can't be resolved from registered implementation classes.
      * The function must be defined as
      * <code>
@@ -84,26 +79,17 @@ class IocImpl implements Ioc {
                     $def = &$this->defsList[$pointer];
                     if (is_a($def,ReflectionClass::class)) {
                         $config = readArray($pointer,$this->configList);
-                        $factory = readArray("factory",$config);
-                        if($def->isInterface()) {
-                            if($factory) {
-                                $def = $this->invoke($factory,$config);
-                            } else {
-                                throw new IocException("config.factory must be defined when registering an interface.");
-                            }
+                        if($factory = readArray("factory",$config)) {
+                            $def = $this->invoke($factory,readArray("parameters",$config));
                         } else {
-                            if($factory) {
-                                $def = $this->invoke($factory,$config);
-                            } else {
-                                $def = $this->instantiateInternal($def, $config);
-                            }
+                            $def = $this->instantiateInternal($def, readArray("parameters",$config),$id);
                         }
                     }
                     $instances[] = $def;
                 }
                 $this->instancesByInterface[$interfaceName][$id] = $instances;
                 return $instances;
-            } else if ($this->resolver && (NULL !== ($resolution = call_user_func_array($this->resolver, [new IocNonResolvableImpl(null,new ReflectionClass($interfaceName), ["id"=>$id]),$this])))) {
+            } else if ($this->resolver && (NULL !== ($resolution = call_user_func_array($this->resolver, [new IocNonResolvableImpl(null,new ReflectionClass($interfaceName), null,$id),$this])))) {
                 return [$resolution];
             }
         } else {
@@ -111,46 +97,49 @@ class IocImpl implements Ioc {
         }
     }
 
-    private function instantiateInternal(ReflectionClass $refClass, array $config = null) {
+    private function instantiateInternal(ReflectionClass $refClass, array $parameters = null,$id=null) {
         if ($constructor = $refClass->getConstructor()) {
-            if ($arguments = $this->buildParameters($constructor,$config)) {
+            if ($arguments = $this->buildParameters($constructor,$parameters,null,$id)) {
                 return $refClass->newInstanceArgs($arguments);
             } else {
                 return $refClass->newInstanceArgs();
             }
+        } else if ($refClass->isInterface()) {
+            throw new IocException("config.factory must be defined when registering an interface.");
         } else {
             return $refClass->newInstanceWithoutConstructor();
         }
     }
 
-    public function instantiate($className,array $config = null) {
-        return $this->instantiateInternal(new ReflectionClass($className),$config);
+    public function instantiate($className,array $parameters = null) {
+        return $this->instantiateInternal(new ReflectionClass($className),$parameters);
     }
 
-    public function invoke(Closure $closure,array $config = null) {
+    public function invoke(Closure $closure,array $parameters = null) {
         $refClosure = new ReflectionFunction($closure);
-        if($arguments = $this->buildParameters($refClosure,$config)) {
+        if($arguments = $this->buildParameters($refClosure,$parameters)) {
             return call_user_func_array($closure, $arguments);
         } else {
             return $closure();
         }
     }
 
-    private function buildParameters(ReflectionFunctionAbstract $reflectionMethod, array $config = null, Closure $resolver = null) {
+    private function buildParameters(ReflectionFunctionAbstract $reflectionMethod, array $parameters = null, Closure $resolver = null, $id=null) {
         $arguments = array();
         $missingParameterCount = 0;
         foreach ($reflectionMethod->getParameters() as $p) {
             $paramName = $p->getName();
-            if (null !== ($value = isset($config["parameters"][$paramName]) ? $config["parameters"][$paramName] : null)) {
-                $arguments[] = $value;
-            } else if (($paramRefClass = $p->getClass()) && ($resolvedInstances = $this->resolveInstances($paramRefClass->getName(), isset($config["mappings"][$paramName]) ? $config["mappings"][$paramName] : null))) {
+            $paramValueByName = isset($parameters[$paramName]) ? $parameters[$paramName] : null;
+            if(($paramRefClass = $p->getClass()) && ($resolvedInstances = $this->resolveInstances($paramRefClass->getName(), $paramValueByName))) {
                 $arguments[] = $resolvedInstances[0];
-            } else if ($p->isArray() && (null !== ($type = isset($config["types"][$paramName]) ? $config["types"][$paramName] : null))) {
-                $arguments[] = $this->getAll($type);
-            } else if (null !== ($value = isset($config["parameters"][$missingParameterCount]) ? $config["parameters"][$missingParameterCount] : null)) {
-                $arguments[] = $value;
+            } else if ($p->isArray() && $paramValueByName) {
+                $arguments[] = $this->getAll($paramValueByName);
+            } else if($paramValueByName) {
+                $arguments[] = $paramValueByName;
+            } elseif($paramValueByIndex = isset($parameters[$missingParameterCount]) ? $parameters[$missingParameterCount] : null) {
+                $arguments[] = $paramValueByIndex;
                 $missingParameterCount++;
-            } else if ($this->resolver && (NULL !== ($resolution = call_user_func_array($this->resolver, [new IocNonResolvableImpl($p, ($reflectionMethod instanceof ReflectionMethod ? $reflectionMethod->getDeclaringClass() : null),$config),$this])))) {
+            } else if ($this->resolver && (NULL !== ($resolution = call_user_func_array($this->resolver, [new IocNonResolvableImpl($p, ($reflectionMethod instanceof ReflectionMethod ? $reflectionMethod->getDeclaringClass() : null),$parameters,$id),$this])))) {
                 $arguments[] = $resolution;
             } else {
                 if($resolver && ($value = $resolver($p))) {
@@ -158,7 +147,7 @@ class IocImpl implements Ioc {
                 } else if ($p->isDefaultValueAvailable()) {
                     $arguments[] = $p->getDefaultValue();
                 } else {
-                    throw new IocException(sprintf("Unresolved parameter '%s' in '%s' without default value", $p->getName(), ($reflectionMethod instanceof ReflectionMethod) ? ($reflectionMethod->getDeclaringClass() ? $reflectionMethod->getDeclaringClass()->getName() : "unknown") : "uknown"));
+                    throw new IocException(sprintf("Unresolved parameter '%s' in '%s' without default value", $p->getName(), ($reflectionMethod instanceof ReflectionMethod) ? ($reflectionMethod->getDeclaringClass() ? $reflectionMethod->getDeclaringClass()->getName() : "unknown") : "unknown"));
                 }
             }
         }

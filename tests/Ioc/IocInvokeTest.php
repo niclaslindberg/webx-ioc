@@ -35,13 +35,13 @@ class IocInvokeTest extends \PHPUnit_Framework_TestCase
 
         $result1 = $ioc->invoke(function(InterfaceA $a){
             return $a;
-        },["mappings"=>["a"=>"1"]]);
+        },["a"=>"1"]);
         $this->assertNotNull($result1);
         $this->assertSame($a1,$result1);
 
         $result2 = $ioc->invoke(function(InterfaceA $a){
             return $a;
-        },["mappings"=>["a"=>"2"]]);
+        },["a"=>"2"]);
         $this->assertNotNull($result2);
         $this->assertSame($a2,$result2);
 
@@ -54,7 +54,7 @@ class IocInvokeTest extends \PHPUnit_Framework_TestCase
 
         $result = $ioc->invoke(function(array $as){
             return $as;
-        },["types"=>["as"=>InterfaceA::class]]);
+        },["as"=>InterfaceA::class]);
         $this->assertNotNull($result);
         $this->assertSame(2,count($result));
         $this->assertContainsOnlyInstancesOf(InterfaceA::class,$result);

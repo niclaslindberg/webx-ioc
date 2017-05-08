@@ -1,20 +1,12 @@
 <?php
-/**
- * User: niclas
- * Date: 3/31/16
- * Time: 5:53 PM
- */
-
 namespace WebX\Ioc\Impl;
-
 
 use ReflectionClass;
 use ReflectionParameter;
 use WebX\Ioc\Ioc;
 use WebX\Ioc\IocNonResolvable;
 
-class IocNonResolvableImpl implements IocNonResolvable
-{
+class IocNonResolvableImpl implements IocNonResolvable {
     /**
      * @var ReflectionParameter
      */
@@ -28,36 +20,38 @@ class IocNonResolvableImpl implements IocNonResolvable
     /**
      * @var array|null
      */
-    private $config;
+    private $parameters;
 
     /**
      * IocUnresolvableImpl constructor.
      * @param ReflectionParameter $unresolvedParameter
      * @param ReflectionClass $unresolvedClass
      * @param Ioc $ioc
-     * @param array $config
+     * @param array $parameters
      */
-    public function __construct(ReflectionParameter $unresolvedParameter = null, ReflectionClass $unresolvedClass=null,  array $config = null)
-    {
+    public function __construct(ReflectionParameter $unresolvedParameter = null, ReflectionClass $unresolvedClass=null, array $parameters = null, $id=null) {
         $this->unresolvedParameter = $unresolvedParameter;
         $this->unresolvedClass = $unresolvedClass;
-        $this->config = $config;
+        $this->parameters = $parameters;
+        $this->id = $id;
     }
 
 
-    public function unresolvedParameter()
-    {
+    public function unresolvedParameter() {
         return $this->unresolvedParameter;
     }
 
-    public function unresolvedClass()
-    {
+    public function unresolvedClass() {
         return $this->unresolvedClass;
     }
 
-    public function config()
-    {
-        return $this->config;
+    public function parameters() {
+        return $this->parameters;
     }
+
+    public function id() {
+        return $this->id;
+    }
+
 
 }

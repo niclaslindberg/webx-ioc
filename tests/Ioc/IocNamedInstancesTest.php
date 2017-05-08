@@ -16,7 +16,7 @@ class IocNamedInstancesTest extends \PHPUnit_Framework_TestCase
         $ioc->register($a1,["id"=>"instance1"]);
         $ioc->register($a2,["id"=>"instance2"]);
 
-        $ioc->register(DependentA::class,["mappings"=>["a"=>"instance2"]]);
+        $ioc->register(DependentA::class,["parameters"=>["a"=>"instance2"]]);
 
         $dependentA = $ioc->get(IDependentA::class);
 
@@ -30,8 +30,8 @@ class IocNamedInstancesTest extends \PHPUnit_Framework_TestCase
         $ioc->register(A::class,["id"=>"a1"]);
         $ioc->register(A::class,["id"=>"a2"]);
 
-        $ioc->register(DependentA::class,["id"=>"d1","mappings"=>["a"=>"a1"]]);
-        $ioc->register(DependentA::class,["id"=>"d2","mappings"=>["a"=>"a2"]]);
+        $ioc->register(DependentA::class,["id"=>"d1","parameters"=>["a"=>"a1"]]);
+        $ioc->register(DependentA::class,["id"=>"d2","parameters"=>["a"=>"a2"]]);
 
         $d1 = $ioc->get(IDependentA::class,"d1");
         $d1b = $ioc->get(IDependentA::class,"d1");
@@ -72,10 +72,8 @@ class IocNamedInstancesTest extends \PHPUnit_Framework_TestCase
     public function testRegisterUnknownCallsResolverWithId() {
         $idHistory = [];
         $resolver = function(IocNonResolvable $nonResolvable) use(&$idHistory) {
-            $config = $nonResolvable->config();
-            $this->assertNotNull($config);
-            $idHistory[] = $config["id"];
-            return $config["id"];
+            $idHistory[] = $nonResolvable->id();
+            return $nonResolvable->id();
         };
 
         $ioc = new IocImpl($resolver);

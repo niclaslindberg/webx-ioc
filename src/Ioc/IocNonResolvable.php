@@ -25,6 +25,11 @@ interface IocNonResolvable
      * .The optional id of the instance to be resolved
      * @return array|null
      */
-    public function config();
+    public function parameters();
+
+    /**
+     * @return string|null
+     */
+    public function id();
 
 }

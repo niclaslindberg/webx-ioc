@@ -14,7 +14,7 @@ class IocDependentArrayTest extends \PHPUnit_Framework_TestCase
         $ioc->register(B::class);
         $ioc->register(A::class);
         $ioc->register(A2::class);
-        $ioc->register(DependentArrayA::class,["types"=>["a"=>IA::class]]);
+        $ioc->register(DependentArrayA::class,["parameters"=>["a"=>IA::class]]);
 
         $dependentA = $ioc->get(IDependentArrayA::class);
 
