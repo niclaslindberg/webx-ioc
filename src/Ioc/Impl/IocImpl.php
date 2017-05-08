@@ -133,7 +133,11 @@ class IocImpl implements Ioc {
             if(($paramRefClass = $p->getClass()) && ($resolvedInstances = $this->resolveInstances($paramRefClass->getName(), $paramValueByName))) {
                 $arguments[] = $resolvedInstances[0];
             } else if ($p->isArray() && $paramValueByName) {
-                $arguments[] = $this->getAll($paramValueByName);
+                if(is_string($paramValueByName)) {
+                    $arguments[] = $this->getAll($paramValueByName);
+                } else if (is_array($paramValueByName)) {
+                    $arguments[] = $paramValueByName;
+                }
             } else if($paramValueByName) {
                 $arguments[] = $paramValueByName;
             } elseif($paramValueByIndex = isset($parameters[$missingParameterCount]) ? $parameters[$missingParameterCount] : null) {
@@ -146,6 +150,8 @@ class IocImpl implements Ioc {
                     $arguments[] = $value;
                 } else if ($p->isDefaultValueAvailable()) {
                     $arguments[] = $p->getDefaultValue();
+                } else if ($p->isArray()) {
+                    throw new IocException(sprintf("Array parameter '%s' misses a parameter declaration (type)",$p->getName()));
                 } else {
                     throw new IocException(sprintf("Unresolved parameter '%s' in '%s' without default value", $p->getName(), ($reflectionMethod instanceof ReflectionMethod) ? ($reflectionMethod->getDeclaringClass() ? $reflectionMethod->getDeclaringClass()->getName() : "unknown") : "unknown"));
                 }
