@@ -169,25 +169,20 @@ configuration array on the 'register()' function. All values are optional.
     $a = $ioc->get(InterfaceA::class);
     echo($a->someVar); // "someValue"
 ```
-#### Registering a factory closure to instantiate an object
+#### Controlling instantiation with a factory closure
 ```php
 
+    class ClassA implements InterfaceA {}
+
+    class ClassB implements InterfaceB {}
 
     $ioc = Bootstrap::ioc();
     $ioc->register(ClassB::class);
-    $ioc->register(ClassA::class, ["factory" => function(InterfaceB $b){ //Scans the concrete class
+    $ioc->register(InterfaceA::class, ["factory" => function(InterfaceB $b){ //Scans the concrete class
                                                                          //ClassA for interfaces
         return new ClassA($b);
     }]);
     $a = $ioc->get(InterfaceA::class);
-
-    $ioc = Bootstrap::ioc();
-    $ioc->register(InterfaceA::class, ["factory" => function(){          //Registers the factory
-                                                                         //with InterfaceA
-        return new ClassA2();
-    }]);
-    $a = $ioc->get(InterfaceA::class);
-
 
 ```
 
