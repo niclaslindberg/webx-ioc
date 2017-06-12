@@ -92,7 +92,7 @@ configuration array on the 'register()' function. All values are optional.
             //Ex: function(IA $resolvedInstance) {
             //  return new ClassA($resolvedInstance)
             //}
-            //Note: "types","parameters" and "mappings" are supported for closure arguments.
+            //Note: "parameters" are supported for factory closure arguments.
         "class" => bool //If the container should also publish the instance by it's class name
     ];
 
