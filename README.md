@@ -1,17 +1,7 @@
 # WebX-Ioc - PHP IOC Container
-Main features and design goals of webx-ioc:
-* No external dependencies - easy to integrate into any application or framework.
-* Resolve instance(single) and array of instances(list) of an interface.
-* Support for named instances and constructor parameter mappings.
-* Simplicity.
-* Support for:
-  * resolving non-resolvable dependencies. Calls a user defined Closure for resolution.
-  * initializing classes with static methods.
-  * registration of class names or already existing instances. Automatically scans classes/instances for implemented interfaces.
-  * registration of interfaces with referred instantiation by factories (dependency injection supported Closures).
-  * instantiation of non-registered classes. Invokes constructor with resolved parameters.
-  * typed array dependencies by configuring interface name to be resolved.
-  * concrete class resolution by allowing concrete class name to be resolved.
+Why choose WebX-Ioc
+* Easy to integrate - No external dependencies
+* Extremely flexible.
 * Very fast & light weight (< 180 lines, lazy initialization, resolution cache, dynamic proxies etc).
 * No external dependencies.
 
@@ -90,27 +80,20 @@ configuration array on the 'register()' function. All values are optional.
     $config = [
         "id" => (string)"someId",
         // Unique id (per interface type) for the registered instance.
-        "mappings" => (array) [
-            "constructorParam1" => (string)
-            //Unique id1 of another registered instance
-            "constructorParamN" => (string)
-            //Unique idN of another registered instance
-        ],
         "parameters" => (array) [
-            "constructorParam1" => (mixed)
-            //Any value to be bound to constructorParam1
-        ],
-        "types" => (array) [
-            "constructorParam1" => (string) //Interface type
-            //when a constructor param is of type `array` the container
-            //needs to know what type of instances should be resolved.
+            "constructorParam1" => (string)
+            "constructorParamN" => (string)
+            //If constructor parameter is
+            `array` the value will be used as type-hint for resolving collection.
+            `class` the value will be used as id to find class instance
+            `other` the value will be set for the contructor param
         ],
         "factory" => (Closure) control instantiation by a dependency injection supported Closure.
             //Ex: function(IA $resolvedInstance) {
             //  return new ClassA($resolvedInstance)
             //}
             //Note: "types","parameters" and "mappings" are supported for closure arguments.
-
+        "class" => bool //If the container should also publish the instance by it's class name
     ];
 
     $ioc->register(SomeClass::class,$config);
@@ -134,7 +117,7 @@ configuration array on the 'register()' function. All values are optional.
     class ClassA implements InterfaceA {}
 
     $ioc = Bootstrap::ioc();
-    $ioc->register(ClassA::class,["registerClass"=>true]);
+    $ioc->register(ClassA::class,["class"=>true]);
 
     $a1 = $ioc->get(ClassA::class);
     echo($a1 instanceof ClassA); // true
@@ -159,7 +142,7 @@ configuration array on the 'register()' function. All values are optional.
     $ioc->register($a1,["id"=>"id1"]);
     $ioc->register($a2,["id"=>"id2"]);
 
-    $ioc->register(ClassB::class,["mappings"=>["paramA"=>"id2"]]);
+    $ioc->register(ClassB::class,["parameters"=>["paramA"=>"id2"]]);
     //Causes the constructor param 'paramA' of class 'ClassB' to use instance 'id2'
 
     $b = $ioc->get(InterfaceB::class);
@@ -206,41 +189,6 @@ configuration array on the 'register()' function. All values are optional.
     $a = $ioc->get(InterfaceA::class);
 
 
-```
-
-#### Statically initialize a class
-```php
-
-
-
-    class ClassA implements InterfaceA {
-
-        public static $b;
-
-        public function __construct() {}
-
-        public static function init(InterfaceB $b) {
-            self::$b = $b;
-        }
-
-        public function sayWhat() {
-            return self::$b->saySomething();
-        }
-    }
-
-    class ClassB implements InterfaceB {
-        public function saySomething() {
-            return "Hello";
-        }
-    }
-
-    $ioc = Bootstrap::ioc();
-    $ioc->initStatic(ClassA::class, "init"); //Proxys the not-yet existing instance of ClassB
-    $ioc->register(ClassA::class);
-    $ioc->register(ClassB::class);
-
-    $a = $ioc->get(InterfaceA::class);
-    echo($a->sayWhat()); // "Hello"
 ```
 
 #### Instantiate a non-registered class
@@ -342,84 +290,6 @@ WebX/Ioc recursively tries to resolve all dependent interfaces upon object creat
     //Returns ClassA's default value for $currency "EUR"
 
 ```
-#### Example 2
-Creating a settings file to resolve parameters
-The `user`, `password` and `dbaname` are the names of the constructor parameters of `\mysqli`
-```json
-{
-    "mysqli" : {
-        "user" : "u",
-        "password" : "p",
-        "dbname" : "127.0.0.1"
-    }
-}
-
-```
-settings.json
-
-```php
-    class ClassC implements InterfaceC {
-        private $mysql;
-        public function __construct(\mysqli $mysql) {
-            $this->mysql = $mysql;
-        }
-    }
-
-    $settings = json_decode(file_get_contents("settings.json"),TRUE);
-
-    $resolver = function(IocNonResolvable $nonResolvable, Ioc $ioc) use ($settings) {
-        if($param = $nonResolvable->unresolvedParameter()) {
-            $key = $param->getDeclaringClass()->getShortName();
-            $subKey = $param->getName();
-            return isset($settings[$key][$subKey]) ? $settings[$key][$subKey] : null;
-        }
-    };
-
-    Bootstrap::init($resolver);
-    $ioc = Bootstrap::ioc();
-    $ioc->register(ClassC::class);
-    $a = $ioc->get(InterfaceA::class);
-    // Instantiated \mysqli with the parameters given by the the $resolver function.
-    // Instantiated ClassC with the \mysqli instance.
-```
-Construct parameters for the \mysqli client is provided by a JSON settings file.
-
-#### Example 3 - Resolving parameters by using the id of a named instance
-The resolver function may take a second argument `id` that contains the id
-of the named instance to be resolved.
-
-```php
-    class Country implements ICountry {
-        public $currency;
-        public function __construct($currency) {
-            $this->currency = $currencyl;
-        }
-    }
-
-    $resolver = function(IocNonResolvable $nonResolvable, Ioc $ioc) {
-        //The $config parameter is the second parameter of register().
-        $config = $nonResolvable->config();
-        $id = $config["id"];
-        if($id==='us') {
-            return 'USD';
-        } else if ($id==='se') {
-            return 'SEK';
-        }
-    };
-
-    Bootstrap::init($resolver);
-    $ioc = Bootstrap::ioc();
-    $ioc->register(Country::class,["id"=>"se"]);
-    $ioc->register(Country::class,["id"=>"us"]);
-
-    $allCountries = $ioc->get(ICountry::class);
-
-    // Returns an array with two country instances
-    // configured with different currencies
-
-```
-
-
 
 ### Utilities
 * ```WebX\Ioc\Util\Bootstrap``` Simple, easy to use bootstrapper for a single shared instance of Ioc. Statically accessible.
@@ -433,3 +303,4 @@ In the root of the project:
 
 ### Related projects
 * `webx/db` https://github.com/niclaslindberg/webx-db
+* `webx/routes` https://github.com/niclaslindberg/webx-routes
