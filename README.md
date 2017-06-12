@@ -84,9 +84,9 @@ configuration array on the 'register()' function. All values are optional.
             "constructorParam1" => (string)
             "constructorParamN" => (string)
             //If constructor parameter is
-            `array` the value will be used as type-hint for resolving collection.
-            `class` the value will be used as id to find class instance
-            `other` the value will be set for the contructor param
+            array the value will be used as type-hint for resolving collection.
+            class the value will be used as id to find class instance
+            other the value will be set for the contructor param 
         ],
         "factory" => (Closure) control instantiation by a dependency injection supported Closure.
             //Ex: function(IA $resolvedInstance) {
