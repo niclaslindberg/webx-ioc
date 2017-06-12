@@ -1,9 +1,9 @@
 # WebX-Ioc - PHP IOC Container
 Why choose WebX-Ioc
-* Easy to integrate - No external dependencies
 * Extremely flexible.
 * Very fast & light weight (< 170 lines, lazy initialization, resolution cache).
 * No external dependencies.
+* Easy to integrate - Built in closure invokation and instantiation by class name.
 
 ## Installing
 Packagist: `webx/ioc` http://packagist.org/packages/webx/ioc
