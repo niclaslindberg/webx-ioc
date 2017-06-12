@@ -2,7 +2,7 @@
 Why choose WebX-Ioc
 * Easy to integrate - No external dependencies
 * Extremely flexible.
-* Very fast & light weight (< 180 lines, lazy initialization, resolution cache, dynamic proxies etc).
+* Very fast & light weight (< 170 lines, lazy initialization, resolution cache).
 * No external dependencies.
 
 ## Installing
